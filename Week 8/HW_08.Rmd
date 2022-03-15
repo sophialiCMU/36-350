@@ -3,12 +3,12 @@ title: "HW: Week 8"
 author: "36-350 -- Statistical Computing"
 date: "Week 8 -- Spring 2022"
 output:
-  pdf_document:
-    toc: no
   html_document:
     toc: true
     toc_float: true
     theme: spacelab
+  pdf_document:
+    toc: no
 ---
 
 Name: 
@@ -58,7 +58,7 @@ knit_hooks$set(output = function(x, options) {
 
 Show us that you have a `GitHub` account. Create a repository on `GitHub` called "36-350". (Utilize the checklist in `Notes_8A`.) Then edit the code below so that we see the contents of `README.md`. To get the correct URL, do the following: go to your `GitHub` repo, click on `36-350` and then again on `README.md`, and click on the "Raw" button. Copy and paste the URL to the raw `README.md` file into the call to `readLines()` below.
 ```{r linewidth=80}
-#readLines("Enter the URL to README.md here")
+readLines("https://raw.githubusercontent.com/sophialiCMU/36-350/main/README.md")
 ```
 
 ## Question 2
