@@ -5,3 +5,9 @@ Q1: shows Github account and makes a repository
 
 Q2: create new project
  
+Q5:return character string with numerical values
+- testing the function
+- where code will work and where code will fail
+- where there are errors and potential bugs
+
+Q6: write things that prove question 5
