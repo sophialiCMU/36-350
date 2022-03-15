@@ -1,0 +1,7 @@
+Homework 8 Review
+
+Q1: shows Github account and makes a repository
+- use raw url or else readlines won't work
+
+Q2: create new project
+ 

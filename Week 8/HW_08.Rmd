@@ -11,9 +11,9 @@ output:
     toc: no
 ---
 
-Name: 
+Name: Sophia Li
 
-Andrew ID: 
+Andrew ID: sophiali
 
 You must submit **your own** HW as a PDF file on Gradescope.
 
