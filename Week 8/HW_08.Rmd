@@ -82,8 +82,8 @@ if ( require("devtools") == FALSE ) {
 
 Following the instructions in `Notes_8A`, create a new branch both on `GitHub` and in your local project. Call it `new_branch`. Once you have done this, alter `dark_and_stormy.R` so that it prints "It was a dark and stormy night; the rain fell in torrents." Stage, commit, and push as you would have done in Q2. Source the `main` branch file as you did in Q2, and also source the `new_branch` file. If the output of the first does not include "the rain fell in torrents," while the output of the second one does include that phrase, you're good.
 ```{r linewidth=80}
-#source_url("Enter the URL to the main branch version of dark_and_stormy.R here")
-#source_url("Enter the URL to the new-branch version of dark_and_stormy.R here")
+source_url("Enter the URL to the main branch version of dark_and_stormy.R here")
+source_url("https://raw.githubusercontent.com/sophialiCMU/36-350/new_branch/Week%208/dark_and_stormy.R")
 ```
 
 ## Question 4
