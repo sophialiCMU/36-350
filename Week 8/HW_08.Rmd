@@ -72,7 +72,7 @@ if ( require("devtools") == FALSE ) {
   install.packages("devtools",repos="https://cloud.r-project.org")
   library(devtools)
 }
-#source_url("Enter the URL to dark_and_stormy.R here")
+source_url("https://raw.githubusercontent.com/sophialiCMU/36-350/main/Week%208/dark_and_stormy.R")
 ```
 
 ## Question 3
