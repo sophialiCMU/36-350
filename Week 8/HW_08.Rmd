@@ -3,12 +3,12 @@ title: "HW: Week 8"
 author: "36-350 -- Statistical Computing"
 date: "Week 8 -- Spring 2022"
 output:
+  pdf_document:
+    toc: no
   html_document:
     toc: true
     toc_float: true
     theme: spacelab
-  pdf_document:
-    toc: no
 ---
 
 Name: Sophia Li
@@ -82,7 +82,7 @@ source_url("https://raw.githubusercontent.com/sophialiCMU/36-350/main/Week%208/d
 
 Following the instructions in `Notes_8A`, create a new branch both on `GitHub` and in your local project. Call it `new_branch`. Once you have done this, alter `dark_and_stormy.R` so that it prints "It was a dark and stormy night; the rain fell in torrents." Stage, commit, and push as you would have done in Q2. Source the `main` branch file as you did in Q2, and also source the `new_branch` file. If the output of the first does not include "the rain fell in torrents," while the output of the second one does include that phrase, you're good.
 ```{r linewidth=80}
-source_url("Enter the URL to the main branch version of dark_and_stormy.R here")
+source_url("https://raw.githubusercontent.com/sophialiCMU/36-350/main/Week%208/dark_and_stormy.R")
 source_url("https://raw.githubusercontent.com/sophialiCMU/36-350/new_branch/Week%208/dark_and_stormy.R")
 ```
 
@@ -96,9 +96,8 @@ Another way to create a code branch is to "fork" a repository. Two words that yo
 In this exercise, you are going to fork the `36-350-Fork` repository in my (i.e., `mohamedfarag`'s) account. Point your browser to `https://github.com/mohamedfarag/36-350-Fork` and click on the `Fork` button at top right. When/if you are prompted as to where you want the forked repository to go, indicate that you want it to go to *your* `GitHub` account. Once you've done that, source via `source_url()` the `check_mark.R` file in the repo. The path to the file should include *your account name*, and not mine! (Note that when you run the code chunk, you may see a "spinning circle," with the ultimate output not shown. This is OK...the file should still knit with the correct output.)
 
 ```{r linewidth=80}
-#source_url("Enter the URL to **your** forked version of check_mark.R here")
+source_url("https://raw.githubusercontent.com/sophialiCMU/36-350-Fork/main/check_mark.R")
 ```
----
 
 Note that at this point, you will have a forked `36-350-Fork` repo, as well as a `36-350` repo that has two branches. Leave the repo and branches alone, so that you can always generate the output you need to answer Q3 and Q4. However, *after you have turned in your homework*, you can do the following on `GitHub` if you choose to (however, see #3):
 
@@ -109,7 +108,6 @@ Note that at this point, you will have a forked `36-350-Fork` repo, as well as a
 
 As far as your `36-350` repo is concerned: I would suggest that you leave the branches alone, and when the course is completely done (and not before, because we might revisit this repo in the future), just delete the `36-350` repo from both your computer and from `GitHub`. (If you want to. Having them sitting around does not hurt anyone...it just depends on whether you care that there are extraneous repositories in your `GitHub` account.) On `GitHub`, follow the instructions given in point (4) above. On your computer, it is as simple as removing the directory with the repo (i.e., the `36-350` directory and all its sub-directories).
 
----
 
 ## Question 5
 *(20 points)*
@@ -122,14 +120,22 @@ f = function(letter) {
   return(log(which(letters==letter)))
 }
 ```
+
 (Yeah, whoever gave this to you is a bit lazy.) As a dutiful member of the team, your first responsibility is to write a series of tests utilizing functions in the `testthat` that will determine whether or not this code is operating correctly, given the stated expectation of how it is to perform. Below, write at least five different test function calls, at least two of which should fail. (Don't use any one `testthat` function, like `expect_equal()`, more than twice.) They can include tests that you know will fail, based on some future expectation: for instance, you can test whether a certain input leads to a thrown exception (that test would fail currently). (Or whether that same input yields an error.) Then, when you improve the code in Q6, you can improve it in such a way that your now-known-to-fail test will pass the next time.
 ```{r error=TRUE,linewidth=80}
 if ( require("testthat") == FALSE ) {
   install.packages("testthat",repos="https://cloud.r-project.org")
   library(testthat)
 }
+# test_that(desc = "Test for string of length greater than 1",expect_equal(f("aa"),0))
+test_that(desc = "Test for vector of length > 1",           expect_error(f(c("a", "b"))))
+test_that(desc = "Test for vector of length = 1",           expect_equal(f(c("ji")), log(10)))
+test_that(desc = "Test for improper input (numeric)",       expect_error(f(1)))
+test_that(desc = "Test for expected output length (1)",     expect_length(f("a"),1))
+test_that(desc = "Test that output is integer",             expect_type(f("a"),"double"))
+test_that(desc = "Test that upper-case letters work",            expect_equal(f("A"),0))
+test_that(desc = "Test that the length of the input vector is 1",expect_error(f(letters)))
 
-# FILL ME IN
 ```
 
 ## Question 6
@@ -139,5 +145,21 @@ if ( require("testthat") == FALSE ) {
 
 Rewrite `f()` below in such a way that all your tests of Q5 pass. (And demonstrate that your tests pass!)
 ```{r linewidth=80}
-# FILL ME IN
+f = function(letter) {
+  if ( typeof(letter) != "character" ) stop("The input must be a character.")
+  if ( length(letter) != 1 ) stop("The input must be a character vector of length 1.")
+  if ( nchar(letter) > 1 ) print("WARNING: The input character must be of length 1.")
+  if ( nchar(letter) > 1) letter = substr(letter, 1, 1)
+  return(log(which(letters==tolower(letter))))
+}
+
+# test_that(desc = "Test for string of length greater than 1",expect_equal(f("aa"),0))
+test_that(desc = "Test for vector of length > 1",           expect_error(f(c("a", "b"))))
+test_that(desc = "Test for vector of length = 1",           expect_equal(f(c("ji")), log(10)))
+test_that(desc = "Test for improper input (numeric)",       expect_error(f(1)))
+test_that(desc = "Test for expected output length (1)",     expect_length(f("a"),1))
+test_that(desc = "Test that output is integer",             expect_type(f("a"),"double"))
+test_that(desc = "Test that upper-case letters work",            expect_equal(f("A"),0))
+test_that(desc = "Test that the length of the input vector is 1",expect_error(f(letters)))
+
 ```
