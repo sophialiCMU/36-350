@@ -1,0 +1,119 @@
+---
+title: "HW: Week 9"
+author: "36-350 -- Statistical Computing"
+date: "Week 9 -- Spring 2022"
+output:
+  pdf_document:
+    toc: no
+  html_document:
+    toc: true
+    toc_float: true
+    theme: space
+---
+
+Name: 
+
+Andrew ID: 
+
+
+You must submit **your own** HW as a PDF file on Gradescope.
+
+---
+
+```{r wrap-hook,echo=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  knitr::opts_chunk$set(linewidth = 80)
+    # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+```
+
+
+## HW Length Cap Instructions
+* If the question requires you to print a data frame in your solution e.g. `q1_out_df`, you must first apply **head(q1_out_df, 30)** and **dim(q1_out_df)** in the final knitted pdf output for such a data frame.
+* Please note that this only applies if you are knitting the `Rmd` to a `pdf`, for Gradescope submission purposes.
+* If you are using the data frame output for visualization purposes (for example), use the entire data frame in your exploration
+* The **maximum allowable length** of knitted pdf HW submission is **30 pages**. Submissions exceeding this length *will not be graded* by the TAs. All pages must be tagged as usual for the required questions per the usual policy
+* For any concerns about HW length for submission, please reach out on Piazza during office hours
+
+
+## Question 1
+*(20 points)*
+
+Display the sampling distribution for $R_{1,2}$, the off-diagonal element of a two-dimensional sample correlation matrix for a bivariate normal, given that $\mu_1 = \mu_2 = 2$, $\sigma_1 = 1$, $\sigma_2 = 2$, $\rho_{1,2} = -0.5$, and $n = 100$. Sample 1000 values and display them in a histogram; include a vertical line for the population value ($-0.5$). (Reminder: if I don't specify how exactly to visualize something, i.e., if I don't specify base `R` versus `ggplot`, then you can choose whichever.) Note that the final distribution that you see will not be normal.
+```{r}
+# FILL ME IN
+```
+
+## Question 2
+*(20 points)*
+
+Assume you have a trivariate multivariate normal with $\mu = \{2,3,4\}$ and $\sigma = \{1,2,1\}$, and $\rho_{1,2} = 0.4$, $\rho_{1,3} = 0.7$, and $\rho_{2,3} = -0.2$. Sample 1000 data from the marginal distribution for $(x_1,x_3)$, and display them via `ggplot`. Compute the sample means along each marginal axis: they should be approximately 2 and 4.
+```{r}
+# FILL ME IN
+```
+
+## Question 3
+*(20 points)*
+
+Repeat Q2, except here you should sample from the conditional distribution $f(x_1,x_3 \vert x_2 = 1)$. Compute the conditional correlation coefficient $\rho_{\rm cond}$ between the data along the $x_1$ and $x_3$ axes, given $x_2 = 1$, and display the sample correlation matrix.
+```{r}
+# FILL ME IN
+```
+
+## Question 4
+*(20 points)*
+
+Assume that you have a mixture model: you have 100 data sampled from a bivariate normal with $\mu = \{1,1\}$ and $\sigma = \{1.2,1.2\}$, with $\rho = 0.4$, and another 100 data sampled from a bivariate normal with $\mu = \{3,3\}$, $\sigma = \{1,1\}$, and $\rho = -0.6$. Plot your sampled data with separate colors for each component of the mixture. Then perform logistic regression to try to classify each sampled point as being from component 1 or component 2, and output the proportion of times you misclassify a point. (Don't worry about breaking your data up into training and testing sets, as this is a simple academic exercise; just use all 200 points to train your classifier, then output the training misclassification error.)
+
+How to train your logistic classifier and get the misclassification rate?
+
+- Assuming you already have a data frame with sampled $x_1$ and $x_2$ values in the first and second columns, add a third column with the labeled class. (Name this column `class`.) Use 0 for the first class, and 1 for the second.
+- Use `glm()` with model formula `class~.`, your data frame, and the argument `family=binomial`.
+- Use `predict()` with the output of `glm()` and with the argument `type="response"`. This will generate 200 predictions between 0 and 1.
+- Round off all predictions to 0 or 1.
+- Create a `table()` with the arguments being your rounded-off predictions and the labeled classes.
+- Compute the proportion of table elements that are "off-diagonal" (upper-right and lower-left). Done.
+```{r}
+# FILL ME IN
+```
+
+---
+
+In the following code chunk, we input seven measurements for each of 5000 asteroids. The data frame is `df`. There is another variable, `q`, that is also loaded and which we will utilize later.
+```{r linewidth=80}
+load(url("http://www.stat.cmu.edu/~mfarag/350/HW_09_PCA.Rdata"))
+names(df)
+```
+
+---
+
+## Question 5
+*(20 points)*
+
+Perform PCA on the data frame `df`. Use the rule-of-thumb in the notes to determine the number of principal components (or PCs) to retain, and for those PCs, indicate the mapping from PC to original variables. (Also, display the proportion of variance explained by the PCs you retain.) Are any of the original variables "unimportant" within the context of the retained PCs?
+```{r linewidth=80}
+# FILL ME IN
+```
+```
+FILL ME IN (with line breaks)
+```
+
+## Question 6
+*(20 points)*
+
+Something that one can do with principal components is regression: after all, all you've done is transform your data to a new coordinate system. Below, linearly regress the variable `q` upon all the variables in `df`, and print the adjusted $R^2$ and the sum of squared errors for the model. Then repeat linear regression, except now regress the variable `q` upon only the retained PCs. Again, print out the adjusted $R^2$ and the sum of squared errors. Are the second value close to the first? (They often will be, but don't have to be.) (Hint: look at the names of the list elements that are output by the *summary* of your linear regression fits, as one of those list elements may help you with extracting the adjusted $R^2$. As far as the sum of squared errors, you need to simply compute the `sum()` of the difference between the observed values of `q` and the predicted values from `predict()`.)
+```{r linewidth=80}
+# FILL ME IN
+```
+```
+FILL ME IN (with line breaks)
+```
