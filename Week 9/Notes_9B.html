@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="36-350 – Statistical Computing" />
+  <meta name="font-size-adjustment" content="-1"/>
+  <title>Eigendecomposition and PCA</title>
+  <style type="text/css">
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+            pre > code.sourceCode { white-space: pre; position: relative; }
+            pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+            pre > code.sourceCode > span:empty { height: 1.2em; }
+            .sourceCode { overflow: visible; }
+            code.sourceCode > span { color: inherit; text-decoration: inherit; }
+            div.sourceCode { margin: 1em 0; }
+            pre.sourceCode { margin: 0; }
+            @media screen {
+            div.sourceCode { overflow: auto; }
+            }
+            @media print {
+            pre > code.sourceCode { white-space: pre-wrap; }
+            pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+            }
+            pre.numberSource code
+              { counter-reset: source-line 0; }
+            pre.numberSource code > span
+              { position: relative; left: -4em; counter-increment: source-line; }
+            pre.numberSource code > span > a:first-child::before
+              { content: counter(source-line);
+                position: relative; left: -1em; text-align: right; vertical-align: baseline;
+                border: none; display: inline-block;
+                -webkit-touch-callout: none; -webkit-user-select: none;
+                -khtml-user-select: none; -moz-user-select: none;
+                -ms-user-select: none; user-select: none;
+                padding: 0 4px; width: 4em;
+                color: #aaaaaa;
+              }
+            pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+            div.sourceCode
+              {   }
+            @media screen {
+            pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+            }
+            code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+            code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+            code span.at { color: #7d9029; } /* Attribute */
+            code span.bn { color: #40a070; } /* BaseN */
+            code span.bu { } /* BuiltIn */
+            code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+            code span.ch { color: #4070a0; } /* Char */
+            code span.cn { color: #880000; } /* Constant */
+            code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+            code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+            code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+            code span.dt { color: #902000; } /* DataType */
+            code span.dv { color: #40a070; } /* DecVal */
+            code span.er { color: #ff0000; font-weight: bold; } /* Error */
+            code span.ex { } /* Extension */
+            code span.fl { color: #40a070; } /* Float */
+            code span.fu { color: #06287e; } /* Function */
+            code span.im { } /* Import */
+            code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+            code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+            code span.op { color: #666666; } /* Operator */
+            code span.ot { color: #007020; } /* Other */
+            code span.pp { color: #bc7a00; } /* Preprocessor */
+            code span.sc { color: #4070a0; } /* SpecialChar */
+            code span.ss { color: #bb6688; } /* SpecialString */
+            code span.st { color: #4070a0; } /* String */
+            code span.va { color: #19177c; } /* Variable */
+            code span.vs { color: #4070a0; } /* VerbatimString */
+            code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+          </style>
+  <style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <script src="Notes_9B_files/header-attrs-2.11/header-attrs.js"></script>
+  <link href="Notes_9B_files/slidy-2/styles/slidy.css" rel="stylesheet" />
+  <script src="Notes_9B_files/slidy-2/scripts/slidy.js"></script>
+  <script src="Notes_9B_files/slidy_shiny-1/slidy_shiny.js"></script>
+</head>
+<body>
+<div class="slide titlepage">
+  <h1 class="title">Eigendecomposition and PCA</h1>
+  <p class="author">
+36-350 – Statistical Computing
+  </p>
+  <p class="date">Week 9 – Spring 2022</p>
+</div>
+<div id="eigenvectors-and-eigenvalues" class="slide section level1">
+<h1>Eigenvectors and Eigenvalues</h1>
+<p>Assume you have an <span class="math inline">\(n \times d\)</span> matrix <span class="math inline">\(A\)</span>. A vector <span class="math inline">\(x\)</span> is dubbed an <em>eigenvector</em> (technically, a right eigenvector) if the following equation holds: <span class="math display">\[
+A x = \lambda x \,.
+\]</span> This equation says that the action of matrix multiplying <span class="math inline">\(x\)</span> by <span class="math inline">\(A\)</span> is the same as stretching the vector <span class="math inline">\(x\)</span> by a scalar factor <span class="math inline">\(\lambda\)</span>, where <span class="math inline">\(\lambda\)</span> is the <em>eigenvalue</em> associated with the eigenvector <span class="math inline">\(x\)</span>. The direction of <span class="math inline">\(x\)</span> is unchanged.</p>
+<p>To find all the eigenvectors and eigenvalues associated with the matrix <span class="math inline">\(A\)</span>, one can decompose it: <span class="math display">\[
+A \rightarrow U \Lambda V^T \,,
+\]</span> where the columns of the <span class="math inline">\(d \times d\)</span> matrix <span class="math inline">\(V\)</span> are the (right) eigenvectors and <span class="math inline">\(\Lambda\)</span> is a diagonal matrix containing the eigenvalues. (We generally don’t care about <span class="math inline">\(U\)</span> in standard statistics-centric applications.) Note that the “T” indicates that in the equation, <span class="math inline">\(V\)</span> is transposed (meaning, its values are flipped across the matrix diagonal, so that the lower-left element moves to the upper-right, etc.)</p>
+<p>If <span class="math inline">\(A\)</span> is a square matrix, you can think of eigendecomposition as breaking up the transformation represented by <span class="math inline">\(A\)</span> into three transformations: a rotation, a stretch, and then another rotation. For our purposes today, <span class="math inline">\(A\)</span> is a square matrix. <em>How</em> <span class="math inline">\(A\)</span> is defined depends on the algorithm we are applying.</p>
+</div>
+<div id="eigenvectors-and-eigenvalues-1" class="slide section level1">
+<h1>Eigenvectors and Eigenvalues</h1>
+<p>There are various (ultimately equivalent) ways by which to compute the eigenvectors and eigenvalues of a square matrix <span class="math inline">\(A\)</span> in <code>R</code>.</p>
+<p>First, let’s define a set of data (via sampling from a bivariate normal):</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressMessages</span>(<span class="fu">library</span>(MASS))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressMessages</span>(<span class="fu">library</span>(ggplot2))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>sigma <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">1</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>rho <span class="ot">=</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="fl">0.5</span>,<span class="fl">0.5</span>,<span class="dv">1</span>),<span class="dv">2</span>,<span class="dv">2</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">=</span> rho <span class="sc">*</span> (sigma <span class="sc">%o%</span> sigma)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">404</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">mvrnorm</span>(<span class="dv">100</span>,mu,Sigma)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>df <span class="ot">=</span> <span class="fu">data.frame</span>(data)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;x.1&quot;</span>,<span class="st">&quot;x.2&quot;</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>df,<span class="at">mapping=</span><span class="fu">aes</span>(<span class="at">x=</span>x<span class="fl">.1</span>,<span class="at">y=</span>x<span class="fl">.2</span>)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">col=</span><span class="st">&quot;skyblue&quot;</span>) <span class="sc">+</span> <span class="fu">xlim</span>(<span class="sc">-</span><span class="dv">7</span>,<span class="dv">9</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">6</span>,<span class="dv">10</span>)</span></code></pre></div>
+<p><img src="Notes_9B_files/figure-slidy/unnamed-chunk-2-1.png" width="384" style="display: block; margin: auto;" /></p>
+</div>
+<div id="eigenvectors-and-eigenvalues-2" class="slide section level1">
+<h1>Eigenvectors and Eigenvalues</h1>
+<p>Let’s suppose that <span class="math inline">\(A\)</span> is the <em>covariance matrix</em> of our data, and we wish to eigendecompose it:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>A <span class="ot">=</span> <span class="fu">cov</span>(df)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Option 1: singular value decomposition</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">svd</span>(A)</span></code></pre></div>
+<pre><code>## $d
+## [1] 8.2171953 0.6383897
+## 
+## $u
+##            [,1]       [,2]
+## [1,] -0.9879550 -0.1547417
+## [2,] -0.1547417  0.9879550
+## 
+## $v
+##            [,1]       [,2]
+## [1,] -0.9879550 -0.1547417
+## [2,] -0.1547417  0.9879550</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Option 2: eigendecomposition</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">eigen</span>(A)</span></code></pre></div>
+<pre><code>## eigen() decomposition
+## $values
+## [1] 8.2171953 0.6383897
+## 
+## $vectors
+##            [,1]       [,2]
+## [1,] -0.9879550  0.1547417
+## [2,] -0.1547417 -0.9879550</code></pre>
+<p>Note that the sign is arbitrary. For example, a two-element eigenvector might be defined in the direction <span class="math inline">\((1,1)\)</span> or in the direction <span class="math inline">\((-1,-1)\)</span>…it doesn’t ultimately make any difference so long as all the signs in the eigenvector are changed.</p>
+</div>
+<div id="eigenvectors-and-eigenvalues-3" class="slide section level1">
+<h1>Eigenvectors and Eigenvalues</h1>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>l <span class="ot">=</span> <span class="fu">eigen</span>(A)<span class="sc">$</span>values</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>v <span class="ot">=</span> <span class="fu">eigen</span>(A)<span class="sc">$</span>vectors</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>df,<span class="at">mapping=</span><span class="fu">aes</span>(<span class="at">x=</span>x<span class="fl">.1</span>,<span class="at">y=</span>x<span class="fl">.2</span>)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">col=</span><span class="st">&quot;skyblue&quot;</span>) <span class="sc">+</span> <span class="fu">xlim</span>(<span class="sc">-</span><span class="dv">7</span>,<span class="dv">9</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">6</span>,<span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">x=</span><span class="dv">1</span>,<span class="at">xend=</span><span class="dv">1</span><span class="sc">+</span>l[<span class="dv">1</span>]<span class="sc">*</span>v[<span class="dv">1</span>,<span class="dv">1</span>],<span class="at">y=</span><span class="dv">2</span>,<span class="at">yend=</span><span class="dv">2</span><span class="sc">+</span>l[<span class="dv">1</span>]<span class="sc">*</span>v[<span class="dv">2</span>,<span class="dv">1</span>]) <span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">x=</span><span class="dv">1</span>,<span class="at">xend=</span><span class="dv">1</span><span class="sc">+</span>l[<span class="dv">2</span>]<span class="sc">*</span>v[<span class="dv">1</span>,<span class="dv">2</span>],<span class="at">y=</span><span class="dv">2</span>,<span class="at">yend=</span><span class="dv">2</span><span class="sc">+</span>l[<span class="dv">2</span>]<span class="sc">*</span>v[<span class="dv">2</span>,<span class="dv">2</span>])</span></code></pre></div>
+<p><img src="Notes_9B_files/figure-slidy/unnamed-chunk-4-1.png" width="384" style="display: block; margin: auto;" /></p>
+</div>
+<div id="rotation-via-eigenvectors" class="slide section level1">
+<h1>Rotation via Eigenvectors</h1>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df.new <span class="ot">=</span> <span class="fu">data.frame</span>(data <span class="sc">%*%</span> v) <span class="co"># matrix-multiply our observed data with V</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df.new) <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;r.1&quot;</span>,<span class="st">&quot;r.2&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>df.new,<span class="at">mapping=</span><span class="fu">aes</span>(<span class="at">x=</span>r<span class="fl">.1</span>,<span class="at">y=</span>r<span class="fl">.2</span>)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">col=</span><span class="st">&quot;skyblue&quot;</span>) <span class="sc">+</span> <span class="fu">xlim</span>(<span class="sc">-</span><span class="dv">7</span>,<span class="dv">9</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="dv">6</span>,<span class="dv">10</span>)</span></code></pre></div>
+<pre><code>## Warning: Removed 2 rows containing missing values (geom_point).</code></pre>
+<p><img src="Notes_9B_files/figure-slidy/unnamed-chunk-5-1.png" width="384" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(df.new) <span class="co"># Note: after rotation, the correlation coefficient is (effectively) zero!</span></span></code></pre></div>
+<pre><code>##               r.1           r.2
+## r.1  1.000000e+00 -5.980403e-17
+## r.2 -5.980403e-17  1.000000e+00</code></pre>
+</div>
+<div id="principal-components-analysis" class="slide section level1">
+<h1>Principal Components Analysis</h1>
+<p>What we just showed on the last slide was, in essence, the rotation implicit in <em>principal components analysis</em>, or PCA.</p>
+<p>(What we left out was the standardization of the data that one generally does: subtracting the sample mean in each column of the data frame from the data values in that column, and then dividing the difference by the sample standard deviation of the column’s data. We generally standardize to mitigate the effect of units.)</p>
+<p>PCA is an algorithm in which one takes the (assumed to be numerical) standardized data in a data frame, finds their centroid, and rotates the data around that centroid. The columns of the rotation matrix are the eigenvectors of the standardized data. (In PCA-land, each eigenvector is dubbed a <em>loading</em> vector; the transformed standardized data are the PCA <em>scores</em>.)</p>
+<p>The result of PCA is a data frame of scores in which the data in different columns are <em>uncorrelated</em>. Not necessarily independent, mind you, but uncorrelated: there is no linear dependency between the data in different columns.</p>
+</div>
+<div id="principal-components-analysis-1" class="slide section level1">
+<h1>Principal Components Analysis</h1>
+<p>The first eigenvector defines the direction of greatest variability in the data (see the green line below). (This is the first principal component.) The second eigenvector defines the direction orthogonal to the first direction in which the variability of the data is maximized (see the blue line below). Etc.</p>
+<center>
+<img src="http://www.stat.cmu.edu/~mfarag/350/pca.png" style="width:60.0%" />
+</center>
+<p>The first eigenvalue is the variance of the data along the direction of the first principal component. Etc.</p>
+</div>
+<div id="pca-example" class="slide section level1">
+<h1>PCA: Example</h1>
+<p>The first principal component (i.e., the eigenvectors of the covariance matrix) defines, as stated above, a direction of greatest variability within the dataset. Let’s look at an example:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="fu">url</span>(<span class="st">&quot;http://www.stat.cmu.edu/~mfarag/350/draco_photometry.Rdata&quot;</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">=</span> <span class="fu">data.frame</span>(mag.u,mag.g,mag.r,mag.i,mag.z)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>(<span class="at">p =</span> <span class="fu">prcomp</span>(df,<span class="at">scale=</span><span class="cn">TRUE</span>))</span></code></pre></div>
+<pre><code>## Standard deviations (1, .., p=5):
+## [1] 2.16740177 0.53107185 0.11341922 0.07171823 0.04821668
+## 
+## Rotation (n x k) = (5 x 5):
+##              PC1          PC2        PC3        PC4          PC5
+## mag.u -0.4066213 -0.888871700 -0.1708599  0.1229690 -0.015865793
+## mag.g -0.4599055  0.008269154  0.5476288 -0.6988800  0.009378588
+## mag.r -0.4574792  0.213337966  0.3521679  0.5865892  0.526393843
+## mag.i -0.4563442  0.265085004 -0.0181101  0.2784823 -0.802246536
+## mag.z -0.4534409  0.306684814 -0.7392966 -0.2735069  0.281016612</code></pre>
+<p>Virtually all the numbers for PC1 are the same. This means that all of the original variables are nearly equally important in defining the direction of greatest variability. (Looked at another way, it means that if <code>mag.u</code> is small for a given object, then all the magnitudes for that object will probably be small; if it is large, all the magnitudes will probably be large).</p>
+<p>PC2 indicates that <code>mag.u</code> is the primary source of data variability in directions orthogonal to PC1. Etc.</p>
+</div>
+<div id="pca-proportion-of-variance-explained" class="slide section level1">
+<h1>PCA: Proportion of Variance Explained</h1>
+<p>In the example on the previous slide, the variance along the first principal component is <span class="math inline">\(2.167^2 = 4.698\)</span>. The total variance is the sum of the squares of the standard deviations: <span class="math inline">\(5\)</span>. (There are five variables, each standardized so as to have variance 1.) Hence the proportion of variance explained by the first principal component is <span class="math inline">\(4.698/5 = 0.9395\)</span>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>p<span class="sc">$</span>sdev[<span class="dv">1</span>]<span class="sc">^</span><span class="dv">2</span></span></code></pre></div>
+<pre><code>## [1] 4.69763</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(p<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div>
+<pre><code>## [1] 5</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>p<span class="sc">$</span>sdev[<span class="dv">1</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span><span class="fu">sum</span>(p<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div>
+<pre><code>## [1] 0.9395261</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,<span class="fu">cumsum</span>(p<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span><span class="fu">sum</span>(p<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>),<span class="at">pch=</span><span class="dv">19</span>,<span class="at">xlab=</span><span class="st">&quot;PC&quot;</span>,</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab=</span><span class="st">&quot;Cumulative Explained Variance&quot;</span>,<span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,<span class="fu">cumsum</span>(p<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span><span class="fu">sum</span>(p<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span>))</span></code></pre></div>
+<p><img src="Notes_9B_files/figure-slidy/unnamed-chunk-7-1.png" width="768" /></p>
+</div>
+<div id="pca-dimension-reduction" class="slide section level1">
+<h1>PCA: Dimension Reduction</h1>
+<p>The proportion of variance explained is useful in <em>dimension reduction</em>. In the example on the last slide, 93.95% of the variance is explained by one variable, and 99.59% with two variables, meaning that if we were to replace our original five-dimensional data frame with a two-dimensional one with the first two PC score vectors, we would lose virtually no information about the data. Dimension reduction can be handy for both data visualization and for subsequent regression and/or classification.</p>
+<p>The basic rule of thumb for selecting the number of dimensions to retain is to pick the smallest number of PCs that explain greater than 90% of the variance. In the example on the previous slide we might pick 1 PC…but since it is easy to visualize two, we could also keep both. (Below, we color code by the value of <code>mag.u</code>, which dominates PC 2.)</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>pc.score <span class="ot">=</span> <span class="fu">as.matrix</span>(<span class="fu">scale</span>(df)) <span class="sc">%*%</span> p<span class="sc">$</span>rotation <span class="co"># pc.score is also output by prcomp() as &quot;x&quot;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">palette</span>(<span class="fu">rainbow</span>(<span class="dv">16</span>))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pc.score[,<span class="dv">1</span>],pc.score[,<span class="dv">2</span>],<span class="at">pch=</span><span class="dv">19</span>,<span class="at">xlab=</span><span class="st">&quot;PC 1&quot;</span>,<span class="at">ylab=</span><span class="st">&quot;PC 2&quot;</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span><span class="dv">16</span><span class="sc">*</span>(mag.u<span class="sc">-</span><span class="fu">min</span>(mag.u))<span class="sc">/</span>(<span class="fu">max</span>(mag.u)<span class="sc">-</span><span class="fu">min</span>(mag.u)))</span></code></pre></div>
+<p><img src="Notes_9B_files/figure-slidy/unnamed-chunk-8-1.png" width="768" /></p>
+<!-- ```{r} -->
+<!-- set.seed(103) -->
+<!-- n = 1000 -->
+<!-- theta = sort(runif(n,0,4*pi)) -->
+<!-- r = sqrt(theta)*theta -->
+<!-- x = r*cos(theta) + rnorm(n,sd=0.2*theta) -->
+<!-- y = r*sin(theta) + rnorm(n,sd=0.2*theta) -->
+<!-- palette(rainbow(64)) -->
+<!-- plot(x,y,col=floor(64*theta/6/pi),pch=19) -->
+<!-- D = as.matrix(dist(cbind(x,y))) -->
+<!-- eps.val = 0.8 -->
+<!-- K = exp(-D^2/(eps.val)) -->
+<!-- v = sqrt(apply(K, 1, sum)) -->
+<!-- A = K/(v %*% t(v)) -->
+<!-- S = svd(A) -->
+<!-- plot(S$v[,1],S$v[,2],col=floor(64*theta/6/pi),pch=19)#,ylim=c(-0.01,0.01)) -->
+<!-- #plot(S$d) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- library(diffusionMap) -->
+<!-- D = as.matrix(dist(cbind(x,y))) -->
+<!-- out = diffuse(D,eps.val=0.8,t=0) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- set.seed(103) -->
+<!-- n = 40 -->
+<!-- A = matrix(rep(0,n^2),nrow=n) -->
+<!-- theta = sort(runif(n,0,4*pi)) -->
+<!-- r = sqrt(theta)*theta -->
+<!-- x = r*cos(theta) + rnorm(n,sd=0.2*theta) -->
+<!-- y = r*sin(theta) + rnorm(n,sd=0.2*theta) -->
+<!-- palette(rainbow(64)) -->
+<!-- plot(x,y,col=floor(64*theta/6/pi),pch=19) -->
+<!-- D = as.matrix(dist(cbind(x,y))) -->
+<!-- eps.val = 5 -->
+<!-- K = exp(-D^2/(eps.val)) -->
+<!-- w = which(K>0.01,arr.ind=TRUE) -->
+<!-- A[w] = 1 -->
+<!-- library(igraph) -->
+<!-- # build the graph object -->
+<!-- network <- graph_from_adjacency_matrix(A) -->
+<!-- # plot it -->
+<!-- plot(network) -->
+<!-- ``` -->
+</div>
+
+  <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+
+</body>
+</html>
