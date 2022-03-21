@@ -1,0 +1,280 @@
+---
+title: "Lab: Week 9"
+author: "36-350 -- Statistical Computing"
+date: "Week 9 -- Spring 2022"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: spacelab
+  pdf_document:
+    toc: no
+---
+
+Name: 
+
+Andrew ID: 
+
+This lab is to be begun in class, but may be finished outside of class at any time prior to Saturday, March 21<sup>st</sup> at 6:00 PM. You must submit **your own** lab as a knitted PDF file on Gradescope.
+
+---
+
+```{r echo=FALSE}
+set.seed(101)
+```
+
+```{r wrap-hook,echo=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+```
+
+## Question 1
+*(5 points)*
+
+*Notes 9A (2)*
+
+Compute $f(x_1,x_2)$ for the point $x_1 = 1$ and $x_2 = 1$ given the bivariate normal with mean $\mu = \{2,2\}$ and $\sigma = \{2,2\}$ and $\rho = 0$. *Do this using the formula on slide 2 of Notes 9A, and not via the use of `dmvnorm()`.*
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 2
+*(5 points)*
+
+*Notes 9A (3)*
+
+Verify your answer for Q1 using `dmvnorm()`.
+```{r linewidth=80}
+if ( require(emdbook) == FALSE ) {
+  install.packages("emdbook",repos="https://cloud.r-project.org")
+  library(emdbook)
+}
+# FILL ME IN
+```
+
+## Question 3
+*(5 points)*
+
+*Notes 9A (3)* 
+
+Use `persp()` to display your bivariate normal from Q1 and Q2. The inputs are `x`, `y`, and `z`, where `x` and `y` are vectors indicating the input values to `dmvnorm()` (think: sequences where the steps are small enough so that the displayed bivariate surface is smooth), and `z` is a matrix of output values. The simplest approach here is to use nested `for` loops to compute each value for `z`. In your call to `persp()`, set the arguments `theta` and `phi` to 45 and 30, respectively.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 4
+*(5 points)*
+
+*Notes 9A (3)*
+
+Repeat Q3, except change the bivariate normal to have correlation coefficient $\rho = 0.5$. Show two perspective plots, one with (`theta`,`phi`) = (45,30), and one with values (-45,30). You should be able to see the effects of the non-zero correlation coefficient as you toggle between the two plots.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 5
+*(5 points)*
+
+*Notes 9A (3)*
+
+Use `contour()` to create a contour plot of the multivariate normal from Q4. Because $\rho > 0$, you should see that the contours are "tilted" so that they are lower on the left and higher on the right.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 6
+*(5 points)*
+
+*Notes 9A (4)*
+
+Sample 1000 data from a bivariate normal with $\mu = \{1,3\}$, $\sigma = \{2,1\}$, and $\rho = -0.75$, and plot your sampled points using `ggplot`.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 7
+*(5 points)*
+
+*Notes 9A (5)*
+
+Display both the population covariance matrix and the sample covariance matrix (given your sample from Q6). The take-away point here is that the elements of the sample covariance matrix are random variables! (Whose values are hopefully close to those of the population matrix.)
+```{r linewidth=80}
+# FILL ME IN
+```
+
+---
+
+You are given the following multivariate normal:
+```{r linewidth=80}
+mu = c(1,2,6,2,-4)
+sigma = c(1,2,1,0.5,2)
+rho = diag(rep(1,5))
+rho[1,2] = rho[2,1] = 0.4
+rho[1,3] = rho[3,1] = -0.3
+rho[1,4] = rho[4,1] = -0.7
+rho[3,5] = rho[5,3] = 0.2
+rho[4,5] = rho[5,4] = 0.5
+Sigma = rho * (sigma %o% sigma)
+```
+
+## Question 8
+*(5 points)*
+
+*Notes 9A (4)*
+
+Sample 100 data from this distribution. Display your sampled data via the `pairs()` function, which generates a pairwise grid of scatterplots. Change the labels on the `pairs()` plot to "x.1", "x.2", ..., "x.5". Also, apply the argument `pch=19`.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 9
+*(5 points)*
+
+*Notes 9A (4,6)*
+
+Sample 100 data from the marginal distribution $f(x_1,x_5)$. Plot your result with either a base `R` or `ggplot` plotting function.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 10
+*(5 points)*
+
+*Notes 9A (7-8)*
+
+Compute the mean and the covariance matrix for $f(x_2,x_3 \vert x_1=1,x_4=1,x_5=1)$. Display your results.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 11
+*(5 points)*
+
+*Notes 9A (4,6)*
+
+Sample 100 data from the conditional distribution $f(x_2,x_3 \vert x_1=1,x_4=1,x_5=1)$. Plot your result with either a base `R` or `ggplot` plotting function.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+---
+
+In the following code chunk, we input four morphological measurements for each of 3419 galaxies. The data frame is `df`.
+```{r linewidth=80}
+load(url("http://www.stat.cmu.edu/~mfarag/350/Lab_09_PCA.Rdata"))
+names(df)
+```
+
+---
+
+## Question 12
+*(5 points)*
+
+*Not in Notes*
+
+As you did in Q8, create a `pairs()` plot for the data frame `df`. Here, there is no need to change the labels, although you should still apply the argument `pch=19`...and since there are many points, also apply the argument `cex=0.2`, which shrinks the sizes of the points. Last, apply the argument `col=rgb(0,0,1,alpha=0.2)`: this changes the color of the points to blue (the "(0,0,1)" part of the function call), and makes them mostly transparent (the "alpha=0.2" part of the function call...a value of 1 is opaque). Two things should jump out at you: (1) the data are not distributed as a multivariate normal, and (2) there are definite correlations between at least some pairs of variables.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 13
+*(5 points)*
+
+*Not in Notes*
+
+Use the `scale()` function to scale the data frame `df`. By default, `scale()` will subtract the sample mean of each column's data from the data values, then divide by the sample standard deviation. (In 36-225 talk, this is "standardizing" the data.) Save the scaled data frame as `df.scaled`. Confirm that the data are scaled by using `colMeans()` to check the sample means, and by using `apply()` with an appropriate function to check the sample standard deviations. (You may observe that the means are not exactly zero. This is normal.)
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 14
+*(5 points)*
+
+*Notes 9B (4)*
+
+Compute the eigenvectors and eigenvalues for the covariance matrix of `df.scaled`. Save these as `v` and `lambda`, respectively. Use `dim()` to display the dimensionality of the matrix `v` and `length()` to show the length of the vector `lambda`. Also check, using `all()` with a relational operator, that all the values of lambda are greater than zero. Finally, display `v` and the square root of `lambda`.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 15
+*(5 points)*
+
+*Notes 9B (5)*
+
+Use matrix multiplication to multiply `df.scaled` and `v`. Save the result as `z`. Use `ggplot` to display a scatterplot for the first two columns of `z`. (You need not overlay lines like those in the plot of Slide 5 of Notes 9B.)
+```{r linewidth=80}
+# FILL ME IN
+```
+
+---
+
+Congratulations! In Q13-Q15, you recreated principal components analysis by hand. Now let's use `prcomp()`.
+
+---
+
+## Question 16
+*(5 points)*
+
+*Notes 9B (9)*
+
+Use `prcomp()` to perform PCA on `df` directly. Divide the rotation matrix output by `prcomp()` by `v` from Q14, and the standard deviations (`sdev`) output by `prcomp()` by the square root of `lambda` (also from Q14). If you did everything right, you will see that the first division yields only values of $-1$ or $1$ (due to the arbitrariness of signs of the eigenvectors), and the second division yields only values of $1$.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 17
+*(5 points)*
+
+*Notes 9B (9)*
+
+Display the rotation matrix output by `prcomp()`. How does each principal component map to the original variables? (Each displayed principal component is a vector; the larger the value for a particular original variable, the more the vector points in that direction.)
+```{r linewidth=80}
+# FILL ME IN
+```
+```
+FILL ME IN (with line breaks)
+```
+
+## Question 18
+*(5 points)*
+
+*Notes 9B (10)*
+
+Create a plot showing the proporation of variance explained as a function of the number of principal components. (Use base `R` plotting.) Add a dashed line across the plot for proporation of variance explained equals 0.9. (See `abline()`.) How many principal components would you keep if you were attempting dimension reduction?
+```{r linewidth=80}
+# FILL ME IN
+```
+```
+FILL ME IN (with line breaks)
+```
+
+## Question 19
+*(5 points)*
+
+*Not in Notes*
+
+Determine which of the elements of the output from `prcomp()` corresponds to the principal component scores, then verify that the data in the score columns are uncorrelated.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 20
+*(5 points)*
+
+*Notes 9B (11)*
+
+Using base `R` plotting functionality, plot the first two principal component scores, and color the data by the value of `df$size`. Because PC 2 points almost completely along the `size` axis, you should see a definite gradient in color as you go from the bottom to the top of your plot.
+```{r linewidth=80}
+# FILL ME IN
+```
