@@ -22,6 +22,8 @@ You must submit **your own** HW as a PDF file on Gradescope.
 
 ```{r wrap-hook,echo=FALSE}
 library(knitr)
+library(MASS)
+library(tidyverse)
 hook_output = knit_hooks$get('output')
 knit_hooks$set(output = function(x, options) {
   knitr::opts_chunk$set(linewidth = 80)
@@ -50,7 +52,25 @@ knit_hooks$set(output = function(x, options) {
 
 Display the sampling distribution for $R_{1,2}$, the off-diagonal element of a two-dimensional sample correlation matrix for a bivariate normal, given that $\mu_1 = \mu_2 = 2$, $\sigma_1 = 1$, $\sigma_2 = 2$, $\rho_{1,2} = -0.5$, and $n = 100$. Sample 1000 values and display them in a histogram; include a vertical line for the population value ($-0.5$). (Reminder: if I don't specify how exactly to visualize something, i.e., if I don't specify base `R` versus `ggplot`, then you can choose whichever.) Note that the final distribution that you see will not be normal.
 ```{r}
-# FILL ME IN
+# Notes 9A slide 5/11
+mu = c(2,2)
+sigma.1 = 1
+sigma.2 = 2
+rho.12 = -0.5
+n = 100
+
+Sigma = matrix(c(sigma.1^2,
+                 rho.12*sigma.1*sigma.2, 
+                 rho.12*sigma.1*sigma.2,
+                 sigma.2^2), nrow = 2)
+Sigma
+# Q** what does n come into play?
+set.seed(101)
+data = mvrnorm(1000,mu,Sigma)
+df = data.frame(x=data[,1],y=data[,2])
+# plot = ggplot(data=df,mapping=aes(x=x,y=y)) + geom_point(col="firebrick3") + xlim(-1,6) + ylim(-1,6)
+hist(data)
+abline(v = -0.5, col = "forestgreen", lwd=3, lty=2)
 ```
 
 ## Question 2
@@ -58,7 +78,40 @@ Display the sampling distribution for $R_{1,2}$, the off-diagonal element of a t
 
 Assume you have a trivariate multivariate normal with $\mu = \{2,3,4\}$ and $\sigma = \{1,2,1\}$, and $\rho_{1,2} = 0.4$, $\rho_{1,3} = 0.7$, and $\rho_{2,3} = -0.2$. Sample 1000 data from the marginal distribution for $(x_1,x_3)$, and display them via `ggplot`. Compute the sample means along each marginal axis: they should be approximately 2 and 4.
 ```{r}
-# FILL ME IN
+mu = c(2,3,4)
+sigma = c(1,2,1)
+rho.12 = 0.4
+rho.13 = 0.7
+rho.23 = -0.2
+
+rho = matrix(c(1,rho.12, rho.13,
+               rho.12, 1, rho.23,
+               rho.13, rho.23, 1), 3,3)
+Sigma = rho * (sigma %o% sigma)
+Sigma
+
+## Attempt 2
+p = c(3)
+(mu.marginal = mu[p])
+(Sigma.marginal = Sigma[p,p])
+x = seq()
+# p is one-dimensional: use dnorm() to compute marginal pdf
+x = seq(-1,6,by=0.01)
+fx = dnorm(x,mean=mu.marginal,sd=sqrt(Sigma.marginal))
+ggplot(data=data.frame(x=x,y=fx),mapping=aes(x=x,y=y)) + geom_line(col="blue")
+
+## Attempt 1
+# k = c(1,3)
+# d.minus.k = c(2)
+# x.3 = 2 # condition: x_3 = 2
+# x.4 = 2 # condition: x_4 = 3
+# Sigma.kk = Sigma[k,k]
+# Sigma.kd = Sigma[k,d.minus.k]
+# Sigma.dk = Sigma[d.minus.k,k]
+# Sigma.dd = Sigma[d.minus.k,d.minus.k]
+# matrix(c(x.3,x.4)-mu[d.minus.k],nrow=2)
+# mu.cond = mu[k] + Sigma.kd %*% solve(Sigma.dd) %*% matrix(c(x.3,x.4)-mu[d.minus.k],nrow=2)
+# mu.cond # centroids along axis 1 and 2 (originally 1 and 2)
 ```
 
 ## Question 3
