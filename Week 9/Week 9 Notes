@@ -1,0 +1,37 @@
+HW9
+Q1: just need a histogram
+- purple line at -0.5
+
+Q2: Scatter plot comparing x1 and x3 after sampling
+- means for each axis average(x1)
+
+Q3:
+- same Q2 but x2 instead
+- scatterplot
+
+Q4: conditional
+- show output corr matix for x1 and x3
+- conditional not correlational matrix?
+
+Q4: similar Q2 and Q3
+- draw from two different dist.
+- 2 colors in plot saying which it comes from
+- after regression, show incorrect points [0,1]
+
+Q5: 
+- use 90% rule to determine # principal compents to keep
+- proportion output
+- table showing each prin. comp. mapped to original variable on top
+- comments at end entailing which 3 are important and which aren't
+- which variable has highest compenent on each component
+
+Q6:
+- regular regression
+- r^2 value of model [0,1]
+- sum of square errors (larger)
+
+- another model from Q5
+- same stuff as before
+- comment at end about two r^2 of two models
+
+w9p1

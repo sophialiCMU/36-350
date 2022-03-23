@@ -11,9 +11,9 @@ output:
     toc: no
 ---
 
-Name: 
+Name: Sophia Li
 
-Andrew ID: 
+Andrew ID: sophiali
 
 This lab is to be begun in class, but may be finished outside of class at any time prior to Saturday, March 21<sup>st</sup> at 6:00 PM. You must submit **your own** lab as a knitted PDF file on Gradescope.
 
@@ -45,7 +45,23 @@ knit_hooks$set(output = function(x, options) {
 
 Compute $f(x_1,x_2)$ for the point $x_1 = 1$ and $x_2 = 1$ given the bivariate normal with mean $\mu = \{2,2\}$ and $\sigma = \{2,2\}$ and $\rho = 0$. *Do this using the formula on slide 2 of Notes 9A, and not via the use of `dmvnorm()`.*
 ```{r linewidth=80}
-# FILL ME IN
+x.1 = 1
+x.2 = 1
+x = c(1,1)
+mu = c(2,2)
+sigma.1 = 2
+sigma.2 = 2
+simga = c(2,2)
+rho = 0
+d=2
+
+Sigma = matrix(c(sigma.1^2,
+                 rho*sigma.1*sigma.2, 
+                 rho*sigma.1*sigma.2,
+                 sigma.2^2), nrow = 2)
+
+fx = 1/sqrt((2*pi)^d *det(Sigma)) * exp(-0.5*t(matrix(x-mu)) %*% solve(Sigma) %*% matrix(x-mu))
+fx
 ```
 
 ## Question 2
@@ -59,7 +75,7 @@ if ( require(emdbook) == FALSE ) {
   install.packages("emdbook",repos="https://cloud.r-project.org")
   library(emdbook)
 }
-# FILL ME IN
+dmvnorm(x, mu, Sigma)
 ```
 
 ## Question 3
