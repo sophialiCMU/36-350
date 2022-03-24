@@ -59,10 +59,10 @@ sigma.2 = 2
 rho.12 = -0.5
 n = 100
 
-(Sigma = matrix(c(sigma.1^2,
+Sigma = matrix(c(sigma.1^2,
                  rho.12*sigma.1*sigma.2, 
                  rho.12*sigma.1*sigma.2,
-                 sigma.2^2), nrow = 2))
+                 sigma.2^2), nrow = 2)
 
 set.seed(101)
 data = rep(0,1000)
@@ -73,8 +73,8 @@ fun = function(x) {
 
 # graph it
 data = sapply(data, FUN=fun)
-hist(data)
-abline(v = -0.5, col = "forestgreen", lwd=3, lty=2)
+hist(data, col="darkturquoise")
+abline(v = -0.5, col = "forestgreen", lwd=5, lty=2)
 ```
 
 ## Question 2
@@ -182,7 +182,7 @@ ggplot(data1, aes(x=X1, y=X2)) +
   geom_point(data1, mapping = aes(x=X1, y=X2), color="firebrick") +
   geom_point(data2, mapping = aes(x=X1, y=X2), color="darkolivegreen3")
 
-## Classify
+## Train and Classify
 training = rbind(data1, data2)
 training["class"] = c(rep(0,100), rep(1,100))
 out = glm(formula=class~., data=training, family=binomial)
@@ -191,8 +191,10 @@ df = data.frame(round(p))
 names(df) = "predicted"
 
 # print table
-t = cbind(actual = training$class, df)
-sum(t$actual != t$predicted)/200
+t = table(training$class, round(p))
+(t[2] + t[3])/sum(t)
+# t = cbind(actual = training$class, df)
+# sum(t$actual != t$predicted)/200
 ```
 
 ---
