@@ -64,12 +64,15 @@ n = 100
                  rho.12*sigma.1*sigma.2,
                  sigma.2^2), nrow = 2))
 
-# Q** what does n come into play?
 set.seed(101)
-data = mvrnorm(1000,mu,Sigma)
-df = data.frame(x=data[,1],y=data[,2])
+data = rep(0,1000)
+fun = function(x) {
+  d = mvrnorm(100,mu,Sigma)
+  cor(d)[1,2]
+}
 
 # graph it
+data = sapply(data, FUN=fun)
 hist(data)
 abline(v = -0.5, col = "forestgreen", lwd=3, lty=2)
 ```
@@ -79,6 +82,7 @@ abline(v = -0.5, col = "forestgreen", lwd=3, lty=2)
 
 Assume you have a trivariate multivariate normal with $\mu = \{2,3,4\}$ and $\sigma = \{1,2,1\}$, and $\rho_{1,2} = 0.4$, $\rho_{1,3} = 0.7$, and $\rho_{2,3} = -0.2$. Sample 1000 data from the marginal distribution for $(x_1,x_3)$, and display them via `ggplot`. Compute the sample means along each marginal axis: they should be approximately 2 and 4.
 ```{r}
+set.seed(101)
 mu = c(2,3,4)
 sigma = c(1,2,1)
 rho.12 = 0.4
@@ -111,15 +115,7 @@ mean(df$x3)
 
 Repeat Q2, except here you should sample from the conditional distribution $f(x_1,x_3 \vert x_2 = 1)$. Compute the conditional correlation coefficient $\rho_{\rm cond}$ between the data along the $x_1$ and $x_3$ axes, given $x_2 = 1$, and display the sample correlation matrix.
 ```{r}
-mu = c(2,3,4)
-sigma = c(1,2,1)
-rho.12 = 0.4
-rho.13 = 0.7
-rho.23 = -0.2
-rho = matrix(c(1,rho.12, rho.13,
-               rho.12, 1, rho.23,
-               rho.13, rho.23, 1), 3,3)
-Sigma = rho * (sigma %o% sigma)
+set.seed(202)
 
 # Get data
 k = c(1,3)
@@ -129,13 +125,21 @@ Sigma.kd = Sigma[k, d.minus.k]
 Sigma.dk = Sigma[d.minus.k, k]
 Sigma.dd = Sigma[d.minus.k, d.minus.k]
 
-(mu.cond = mu[k] + Sigma.kd %*% solve(Sigma.dd) %*% matrix(c(1)-mu[d.minus.k]))
+mu.cond = mu[k] + Sigma.kd %*% solve(Sigma.dd) %*% matrix(c(1)-mu[d.minus.k])
 
-(Sigma.cond = Sigma.kk - Sigma.kd %*% solve(Sigma.dd) %*% Sigma.dk)
+Sigma.cond = Sigma.kk - Sigma.kd %*% solve(Sigma.dd) %*% Sigma.dk
+
+# Sample Data
+mu.marg = mu.cond[c(1,2)]
+Sigma.marg = Sigma.cond[c(1,2), c(1,2)]
+data = mvrnorm(1000, mu.marg,Sigma.marg)
 
 # Plot
-# don't have to plot
+df = data.frame(data)
+names(df) = c("x1", "x3")
+ggplot(data=df,mapping=aes(x=x1,y=x3)) + geom_point(col="skyblue")
 
+cor(df)
 ```
 
 ## Question 4
@@ -154,7 +158,7 @@ How to train your logistic classifier and get the misclassification rate?
 ```{r}
 set.seed(101)
 mu = c(1,1)
-sigma.1 = simga.2 = 1.2
+sigma.1 = sigma.2 = 1.2
 sigma = c(1.2, 1.2)
 rho.12 = 0.4
 Sigma = matrix(c(sigma.1^2,
@@ -185,14 +189,21 @@ points(data2, pch=19,col="darkolivegreen3")
 ## Classify
 training = rbind(data1, data2)
 training["class"] = c(rep(0,100), rep(1,100))
-training
+# training
 out = glm(formula=class~., data=training, family=binomial)
 p = predict(out, type="response")
-t = data.frame(round(p))
+df = data.frame(round(p))
+names(df) = "predicted"
 
 # print table
-s = sum(sum(which(t[1] == 0) > 100), sum(which(t[1] == 1) <= 100))
-cat("Incorrect classification = ", s, "/ 200")
+t = cbind(actual = training$class, df)
+head(t)
+dim(t)
+
+# print error
+s = sum(sum(which(df[1] == 0) > 100), sum(which(df[1] == 1) <= 100))
+s = sum(t$actual != t$predicted)
+cat("Incorrect classification = ", s, "/ 200 = ", s/200)
 ```
 
 ---
@@ -211,6 +222,7 @@ names(df)
 Perform PCA on the data frame `df`. Use the rule-of-thumb in the notes to determine the number of principal components (or PCs) to retain, and for those PCs, indicate the mapping from PC to original variables. (Also, display the proportion of variance explained by the PCs you retain.) Are any of the original variables "unimportant" within the context of the retained PCs?
 ```{r linewidth=80}
 # FILL ME IN
+p = prcomp(df, scale=True)
 ```
 ```
 FILL ME IN (with line breaks)
