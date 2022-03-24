@@ -140,6 +140,9 @@ names(df) = c("x1", "x3")
 ggplot(data=df,mapping=aes(x=x1,y=x3)) + geom_point(col="skyblue")
 
 cor(df)
+# conditional correlation coefficient 
+# Sigma.cond
+
 ```
 
 ## Question 4
@@ -156,16 +159,13 @@ How to train your logistic classifier and get the misclassification rate?
 - Create a `table()` with the arguments being your rounded-off predictions and the labeled classes.
 - Compute the proportion of table elements that are "off-diagonal" (upper-right and lower-left). Done.
 ```{r}
-set.seed(101)
+set.seed(303)
 mu = c(1,1)
 sigma.1 = sigma.2 = 1.2
 sigma = c(1.2, 1.2)
 rho.12 = 0.4
-Sigma = matrix(c(sigma.1^2,
-                 rho.12*sigma.1*sigma.2, 
-                 rho.12*sigma.1*sigma.2,
-                 sigma.2^2), nrow = 2)
-
+Sigma = matrix(c(sigma.1^2, rho.12*sigma.1*sigma.2, 
+                 rho.12*sigma.1*sigma.2, sigma.2^2), nrow = 2)
 data1 = data.frame(mvrnorm(100,mu,Sigma))
 
 # sampled from
@@ -173,23 +173,18 @@ mu = c(3,3)
 sigma.1 = sigma.2 = 1
 sigma = c(1,1)
 rho.12 = -0.6
-Sigma = matrix(c(sigma.1^2,
-                 rho.12*sigma.1*sigma.2, 
-                 rho.12*sigma.1*sigma.2,
-                 sigma.2^2), nrow = 2)
-
+Sigma = matrix(c(sigma.1^2,  rho.12*sigma.1*sigma.2, 
+                 rho.12*sigma.1*sigma.2, sigma.2^2), nrow = 2)
 data2 = data.frame(mvrnorm(100,mu,Sigma))
 
 ## Plot
-# use different colors
-palette(rainbow(16))
-plot(data1, pch=19,col="firebrick")
-points(data2, pch=19,col="darkolivegreen3")
+ggplot(data1, aes(x=X1, y=X2)) +
+  geom_point(data1, mapping = aes(x=X1, y=X2), color="firebrick") +
+  geom_point(data2, mapping = aes(x=X1, y=X2), color="darkolivegreen3")
 
 ## Classify
 training = rbind(data1, data2)
 training["class"] = c(rep(0,100), rep(1,100))
-# training
 out = glm(formula=class~., data=training, family=binomial)
 p = predict(out, type="response")
 df = data.frame(round(p))
@@ -197,13 +192,7 @@ names(df) = "predicted"
 
 # print table
 t = cbind(actual = training$class, df)
-head(t)
-dim(t)
-
-# print error
-s = sum(sum(which(df[1] == 0) > 100), sum(which(df[1] == 1) <= 100))
-s = sum(t$actual != t$predicted)
-cat("Incorrect classification = ", s, "/ 200 = ", s/200)
+sum(t$actual != t$predicted)/200
 ```
 
 ---
