@@ -1,0 +1,118 @@
+---
+title: "R: the Periodogram"
+author: "36-350 -- Statistical Computing"
+date: "Week 10 -- Spring 2022"
+output: 
+  slidy_presentation: 
+    font_adjustment: -1
+---
+
+```{r,echo=FALSE}
+suppressWarnings(suppressMessages(library(tidyverse)))
+set.seed(101)
+```
+
+Spectral Analysis
+===
+
+To keep it brief for the purposes of this class, *spectral analysis* is the decomposition of data (here, time-series data) into a set of basis functions. For time-series data, that basis is generally the *cosine basis*. (Other bases are useful too, like wavelet bases, but the cosine basis is the most often used.)
+
+Assume we have a uniformly sampled, discrete time series of length $n$. The sampling interval is $\Delta t$, meaning that data are gathered at times
+$$
+\{ 0, \Delta t, 2 \Delta t, \ldots, (n-1) \Delta t \} \,.
+$$ 
+(We can always by fiat declare that the first measurement is made at $t = 0$.) Further, let $x_t$ be the measurement at time $t$. Spectral analysis with a cosine basis is implicitly regression, fitting the following model to the data:
+$$
+a_0 + a_1 \cos\left(\frac{2\pi t}{n}\right) + b_1 \sin\left(\frac{2\pi t}{n}\right) + a_2 \cos\left(\frac{4\pi t}{n}\right) + b_2 \sin\left(\frac{4\pi t}{n}\right) + \cdots + \\
+a_{n/2-1} \cos\left(\frac{(n/2-1)\pi t}{n}\right) + b_{n/2-1} \sin\left(\frac{(n/2-1)\pi t}{n}\right) + a_{n/2}\cos(\pi t) \,.
+$$
+$a_0$ is simply the sample mean of all the measurements. For $m = \{1,\ldots,n/2-1\}$, we combine $a_m$ and $b_m$ into one term:
+$$
+A_m = \sqrt{a_m^2+b_m^2}
+$$
+A plot of $A_m$ as a function of frequency (more on frequency below) is a *periodogram*.
+
+Are there many details left out here? Yep. The goal is for you to know what a periodogram *is* and how to create one in `R`. More detail can be had in courses like Professor Shalizi's *Data Over Space and Time* (36-467).
+
+Cosine Basis
+===
+
+Let's step back for one second here and show a simple example of what the periodogram is showing us when we decompose a time series. Below we show two sine waves of different frequency, the dashed wave being of higher frequency than the solid wave.
+```{r fig.height=4,fig.width=4,fig.align="center"}
+t = seq(-2*pi,2*pi,pi/100)
+wave.1 = sin(3*t)
+wave.2 = sin(10*t)
+plot(t,wave.1,type="l",ylim=c(-1,1)); abline(h=0,lty=3)
+lines(t,wave.2,lty=2)
+```
+
+We can combine these together with different weights to create a complex, periodic wave form. The weights correspond to two of the $b$ coefficients in the cosine basis model. When we do a periodogram, what we do is estimate these coefficients; they will be estimated with error, because the observed values are random variables (i.e., they are affected by random variation, like the uncertainty in the measurement of data at each time).
+```{r fig.height=4,fig.width=4,fig.align="center"}
+wave = 0.6*wave.1 + 0.35*wave.2
+plot(t,wave,type="l",ylim=c(-1,1)); abline(h=0,lty=3)
+```
+
+Cosine Basis: Periodogram
+===
+
+In the second plot above, there was no random variation (the measurement uncertainty is zero!). So one would expect to recover the coefficients perfectly. You kinda do, but...
+```{r fig.height=4,fig.width=4,fig.align="center"}
+s = spectrum(wave,log=c("no"))
+```
+So what is going on here? We can see that two frequencies are recovered, but the y-axis measurements are not 0.6 and 0.35 (and the ratio of the two peaks is not 0.6/0.35). Two quick points: (a) a periodogram is scaled such that the total area under the curve equals the sample variance of the observed data, and (b) the time series is not infinite, nor does it encompass an integer number of cycles for both the waves, so the periodogram cannot perfectly recover the input coefficients.
+
+More About Frequency
+===
+
+Let's look at the output of `spectrum`:
+```{r}
+names(s)
+min(s$freq)
+max(s$freq)
+```
+In the spectral plot on the last slide, the x-axis values are `freq` (for frequency) and `spec` (for spectrum).
+
+Frequency can be a confusing quantity. By definition, it is the number of cycles per unit time. For instance, if the unit time is one year, a wave with frequency 2 is a wave that cycles two times during one year, i.e., a wave that has two peaks and two troughs.
+
+More About Frequency
+===
+
+However, `R` does not always know what the unit time is, or more to the point, how much time separates each measurement. If you just specify a vector like `wave`, `R` doesn't know if each element is separated by a month, a year, or a century. (`R` does know the unit time *if the data input into*
+`spectrum` *are of type* `ts`, a point we will return to below.) So `R` will:
+
+- assume that the unit time is whatever amount of time separates one measurement from the next one;
+- determine the number of data points $n$ in the time series;
+- determine the smallest number $n' \geq n$ such that $n' = 2^x 3^y 5^z$;
+- set the smallest frequency to be $1/n'$ (corresponding to approximately one cycle over the total length of time for the time series); and
+- set the largest frequency to be $(n'-1)/(2n') \approx 1/2$ (approximately one cycle in the time represented by two measurements).
+
+In our example, the number of measurements is $n = 401$, so $n' = 405 = 2^0 3^4 5^1$, and the minimum frequency is $1/405$ (matching `min(s$freq)`) and the maximum frequency is $404/(2 \cdot 405)$ (matching `max(s$freq)`).
+
+To convert a given frequency $f$ to a particular length of time, multiply $1/f$ by $\Delta t$, the time that elapses between one measurement and the next one (assuming you know what $\Delta t$ is, even if `R` does not).
+
+Periodogram: Example
+===
+
+We conclude with an example. We will use the Maine unemployment data again. Note that we don't have to cast the input data so as to be an object of the `ts` class, because the periodogram doesn't much care about the initial time of measurement or the sampling interval. (You yourself can convert a `frequency` output by `spectrum()` into a time-related quantity.) However, if you do cast your data, the output `frequency` values will no longer be limited to the domain $(0,n/2]$, and you may be able to more easily interpret results.
+```{r fig.height=4,fig.width=4,fig.align="center"}
+dat = read.table(url("http://www.stat.cmu.edu/~mfarag/350/Maine.dat"),header=TRUE)
+spectrum(dat,log="no")
+```
+What did `spectrum()` find? Well, first of all, it found the low-frequency trend. `spectum()` by default removes a linear trend, but the trend in the Maine unemployment data is not linear, so `spectrum()` picked up on the residual trend. And as you might guess, it also detected the seasonality.
+
+Periodogram: Example
+===
+
+Let's try using `decompose()` to remove the non-linear trend and the seasonality before sending the residual signal to spectrum:
+```{r fig.height=4,fig.width=4,fig.align="center"}
+maine.ts = ts(dat,start=c(1996,1),frequency=12)
+d = decompose(maine.ts)
+random = d$random
+random = random[is.na(random)==FALSE] # this converts random to numeric implicitly
+s = spectrum(random,log="no")
+w = which.max(s$spec)
+(f = s$freq[w])
+```
+The frequency is 0.1; given what we said at the bottom of Slide 6, we know this corresponds to a timescale of $1/f \cdot \Delta t = 1/0.1 \cdot 1~{\rm month} = 10~{\rm months}$. (We know that each measurement is separated by one month, even if `R` does not.) This is not exactly one year, but is consistent with the idea that improperly modeled seasonality is a dominant component of the residuals (which keeping in mind that there may be other components as well).
+
+(Systematic effects may be the bane of your existence when using and interpreting the outout of `spectrum()`. Ask me at some point how many times I've "detected the Earth" when looking at astronomical time series... Actually, let's just say many times.)

@@ -1,0 +1,112 @@
+---
+title: 'R: Basic Time and Date Functionality'
+author: "36-350 -- Statistical Computing"
+date: "Week 10 -- Spring 2022"
+output:
+  slidy_presentation:
+    font_adjustment: -1
+  beamer_presentation: default
+---
+
+```{r,echo=FALSE}
+suppressWarnings(suppressMessages(library(tidyverse)))
+set.seed(101)
+```
+
+The Setting
+===
+
+Assume you have sets of data in which there are columns of dates and/or times.
+
+Before pursuing any analyses that involve these *timing data*, you may wish to get them onto a "level playing field." For instance, one dataset may have dates in the form "April 15, 2015" and another may have them in the form "4/15/15". Putting all your dates into the same format will facilitate downstream analyses.
+```{r}
+as.Date("April 15, 2015",format="%B %d, %Y")
+as.Date(sub("(..)$","20\\1","4/15/15"),format="%m/%d/%Y")
+```
+The latter example is a bit trickier because `R` doesn't know what to do with a two-digit year by default.
+
+Date and Time Classes
+===
+
+The primary classes for storing date and/or time information in `R` are:
+
+- `Date`: the calendar date, in format four-digit year $-$ two-digit month $-$ two-digit day. Use this class if the time of day is not included in your data (or is otherwise unimportant)
+- `POSIXlt`: calendar date and time, with the time in default format two-digit hour : two-digit minute : two-digit second, followed by a time zone (default, for me: EDT)
+- `POSIXct`: same as `POSIXlt`, for all intents and purposes, but with a different internal construction
+
+Both `POSIXlt` and `POSIXct` inherit from the virtual `POSIXt` class. For simplicity, we will ignore `POSIXct` hereafter.
+
+Setting Dates and Times: format Argument
+===
+
+`R`, by default, usually doesn't know what numbers correspond to what components of date or time in a character string. You have to provide an argument, `format`, that specifies this.
+
+The primary components of `format`:
+
+- %Y, %m, %d : the year, the month, and the day. If the year is not four digits, you will have to adjust the output character string as we did on second slide. One-digit months and days are fine, as it is unambiguous to `R` that a leading zero needs to be appended to each.
+- %B : the month, by name instead of by number.
+- %H or %I, %M, %S: the hour (0 to 23 for %H, 1 to 12 for %I), the minute, and the second.
+- %p : specification of AM or PM (when using %I for the hour)
+
+For all the possibilities, see the documentation for `strptime()`, which is the function the `format` argument eventually interfaces with.
+
+Setting Dates and Times: format Argument Examples
+===
+
+```{r}
+as.Date("September 17, 1966",format="%B %d, %Y")
+as.Date("9/17/1966",format="%m/%d/%Y")
+as.POSIXlt("May 2, 2015 8:35 AM",format="%B %d, %Y %I:%M %p") # defaults to local time
+as.POSIXlt("6/6/2017 16:30:00",format="%m/%d/%Y %H:%M:%S",tz="GMT")
+```
+
+Math with Dates and Times
+===
+
+An advantage to using the `Date` and `POSIXlt` classes is that each defines mathematical functions, the most important of which are taking the difference between two dates or times, and adding to determine a new date or time.
+```{r}
+as.Date("5/6/2017",format="%m/%d/%Y") - as.Date("6/5/2012",format="%m/%d/%Y")
+as.Date("6/5/2012",format="%m/%d/%Y") + 566
+as.POSIXlt("6/6/2017 16:30:00",format="%m/%d/%Y %H:%M:%S",tz="GMT") + 566
+```
+Note that when we add a number to a `Date` object, `R` assumes the number is a number of days. 
+
+The situation for `POSIXlt` is a tad more complicated. When we add a number to a `POSIXlt` object, the assumption is that the units for the number is seconds. When we take the difference between two `POSIXlt` objects, the output will be seconds if the difference is less than a minute, minutes if the difference is between one minute and one hour, hours if between one hour and 24 hours, and days otherwise.
+```{r}
+as.POSIXlt("6/6/2017 16:30:00",format="%m/%d/%Y %H:%M:%S") - as.POSIXlt("6/6/2017 16:29:30",format="%m/%d/%Y %H:%M:%S")
+as.POSIXlt("6/6/2017 16:30:00",format="%m/%d/%Y %H:%M:%S") - as.POSIXlt("6/6/2017 16:28:30",format="%m/%d/%Y %H:%M:%S")
+```
+
+Handy Functions to Use with Dates and Times
+===
+
+```{r}
+dt = as.Date("5/6/2017",format="%m/%d/%Y")
+weekdays(dt)
+months(dt)
+quarters(dt)
+julian(dt)
+```
+The last function tells you the number of days that have elapsed since some origin date (shown here as an attribute of the output from `julian()`). Julian dates are quite helpful and are arguably better for data analyses than `Date` objects. To learn more about Julian dates in all their exacting detail, see the [wikipedia entry for `Julian_day`](https://en.wikipedia.org/wiki/Julian_day).
+
+System Functions
+===
+
+The base `R` package includes many functions that allow you to retrieve information from your operating system. From the point of view of managing dates and times, here are the more important ones:
+
+- `Sys.Date()`: returns the current date as an object of class `Date`.
+- `Sys.time()`: returns the current date and time as an object of classes `POSIXct` and `POSIXlt`.
+- `system.time()`: if you pass an expression to this function (such as a long `for` loop), it will return the number of CPU seconds needed to carry out the expression. This is useful for benchmarking code.
+
+```{r}
+Sys.Date()
+Sys.time()
+f = function()
+{
+  total = 0
+  for ( ii in 1:10000000) { total = total + ((-1)^ii)*ii }
+  print(total)
+}
+system.time({f()})
+```
+For the last example: `user` represents the CPU time that it took to run the operation, while `system` refers to the "overhead" CPU time, the time spent by the operating system itself carrying out the operation.

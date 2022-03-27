@@ -140,9 +140,12 @@ names(df) = c("x1", "x3")
 ggplot(data=df,mapping=aes(x=x1,y=x3)) + geom_point(col="skyblue")
 
 cor(df)
-# conditional correlation coefficient 
-# Sigma.cond
-
+# conditional correlation coefficient Q**
+# it is 
+# should be 0.868599
+Sigma.cond
+Sigma.cond = Sigma.kk - Sigma.kd %*% solve(Sigma.dd) %*% Sigma.dk
+# constructed from Sigma.cond. Use matrix to compute correlation coeffient
 ```
 
 ## Question 4
@@ -212,11 +215,33 @@ names(df)
 
 Perform PCA on the data frame `df`. Use the rule-of-thumb in the notes to determine the number of principal components (or PCs) to retain, and for those PCs, indicate the mapping from PC to original variables. (Also, display the proportion of variance explained by the PCs you retain.) Are any of the original variables "unimportant" within the context of the retained PCs?
 ```{r linewidth=80}
-# FILL ME IN
-p = prcomp(df, scale=True)
+# rule of thumb = pick the smallest # of PCs that explain greater than 90% of the variance
+# p$sdev[PC]^2/sum(p$sdev^2)
+# PC1 = 0.3352716, PC2 = 0.2615384, PC3 = 0.145932,
+# PC4 = 0.1234097, PC5 = 0.1076712, PC6 = 0.2251361,
+# PC7 = 0.003463479
+# We will need the first 5 PCs to get to over 90% (97.40%)
+# Got it working. I looked at p$scale to get the scaled values. albedo, e, and H are the lowest values at 0.06640138, #0.08106676, and 1.43902338.
+
+
+
+p = prcomp(df, scale=TRUE)
+plot(1:7,cumsum(p$sdev^2)/sum(p$sdev^2),pch=19,xlab="PC",ylab="Cumulative Explained Variance",ylim=c(0,1))
+abline(h=0.9,lty=2)
+c = c(1,2,3,4,5)
+s = sum(p$sdev[c]^2)/sum(p$sdev^2)
+
+df_new = data.frame(p$rotation)[c]
+df_new
 ```
 ```
-FILL ME IN (with line breaks)
+
+a influences PC1 the most, H influences PC2, \n
+albendo influcences PC2, e influences PC4, i influences PC5. \n
+The variables that don't greatly influence any PC are \n
+diameter and per_y.
+
+
 ```
 
 ## Question 6
@@ -224,8 +249,20 @@ FILL ME IN (with line breaks)
 
 Something that one can do with principal components is regression: after all, all you've done is transform your data to a new coordinate system. Below, linearly regress the variable `q` upon all the variables in `df`, and print the adjusted $R^2$ and the sum of squared errors for the model. Then repeat linear regression, except now regress the variable `q` upon only the retained PCs. Again, print out the adjusted $R^2$ and the sum of squared errors. Are the second value close to the first? (They often will be, but don't have to be.) (Hint: look at the names of the list elements that are output by the *summary* of your linear regression fits, as one of those list elements may help you with extracting the adjusted $R^2$. As far as the sum of squared errors, you need to simply compute the `sum()` of the difference between the observed values of `q` and the predicted values from `predict()`.)
 ```{r linewidth=80}
-# FILL ME IN
+# df_save = df
+# out = glm(formula=class~., data=training, family=binomial)
+# ## Try stuff
+# scale = scale(df)%*%p$rotation[, c]
+# model1 = lm(q~., data = data.frame(scale))
+# sum(model1$coefficients)
+# sum(model1$coefficients)
+# sum(unlist(model1))
+
+# (R2 = 0.7390329)
+# (Square = 2469.368)
+# (AdjR2 = 0.1842183)
+# (Square2 = 7722.323)
 ```
 ```
-FILL ME IN (with line breaks)
+I tried. I'll just take the F for this problem.
 ```

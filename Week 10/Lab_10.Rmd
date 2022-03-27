@@ -1,0 +1,257 @@
+---
+title: "Lab: Week 10"
+author: "36-350 -- Statistical Computing"
+date: "Week 10 -- Spring 2022"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: spacelab
+  pdf_document:
+    toc: no
+---
+
+```{r wrap-hook,echo=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+```
+
+---
+
+```{r}
+suppressWarnings(library(tidyverse))
+```
+
+---
+
+Below we define a series of dates:
+```{r linewidth=80}
+date = rep("",5)
+date[1] = "March 8, 2014"
+date[2] = "19 Feb 2017"
+date[3] = "6-29-2014"
+date[4] = "5/17/1986"
+date[5] = "12.25.88"       # 1988
+```
+
+## Question 1
+*(10 points)*
+
+*Notes 10A (2,4-5)*
+
+Convert each of the dates above to `Date` class format. Save the output for each. You cannot simply declare a vector of type `Date`, so I would suggest the following workaround: initialize a character vector of length 5, then for each date, cast the output of `as.Date()` back to character. When you are done with all five conversions, cast the full character vector back to `Date`. Kludgy, but it works. (There are other workarounds as well, but this is intuitively straightforward.)
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 2
+*(5 points)*
+
+*Notes 10A (7)*
+
+Determine the weekday for each of the dates above. What day of the week is it 100 days after the first date? (Display the result via code, don't just figure this out by hand!) What about 158 days before the second date?
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 3
+*(5 points)*
+
+*Notes 10A (7-8)*
+
+Write a codelet below that displays the current day of the week, one that works no matter when it is run.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 4
+*(10 points)*
+
+*Notes 10A (6)*
+
+Create a sorted sequence of five uniformly distributed random dates that lie between January 1, 1990, and January 1, 2000. Display your result.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 5
+*(5 points)*
+
+*Notes 10A (6)* 
+
+Use `dist()` to display the pairwise distances between each date, i.e., display a matrix-like structure that shows the number of days between each of your randomly selected dates. If the numbers show up as decimals (e.g., 754.667), then you didn't do Q4 optimally; think about how you could amend Q4 so that the output here consists of integer differences.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+---
+
+Below we define a vector of times:
+```{r linewidth=80}
+time = rep("",5)
+time[1] = "4:32 PM"
+time[2] = "16:45:33"
+time[3] = "7:30:00 AM"
+time[4] = "9:20"
+time[5] = "12:00 PM"
+```
+
+---
+
+## Question 6
+*(5 points)*
+
+*Review*
+
+Append each of the times above to each of the dates defined above Q1. (Recall: `paste()`.) Display your output.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 7
+*(5 points)*
+
+*Notes 10A (4-5)*
+
+Similarly to how you answered Q1, convert each of the character strings output in Q6 to objects of the `POSIXlt` class. 
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 8
+*(5 points)*
+
+*Notes 10A (6)*
+
+How many minutes elapse between the second time and the third time? Use `as.numeric()` and `cat()` to have your final output be "Time difference of <number of minutes> minutes".
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 9
+*(5 points)*
+
+*Notes 10A (7)*
+
+Google "Modified Julian Day". Then use the origin defined for the MJD scale to compute the modified Julian dates for each element of your time vector. Use `as.POSIXlt()` with midnight specified as "00:00:00". (We will ignore the issue of time zones here.) The final output should include 47520.50.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 10
+*(5 points)*
+
+*Notes 10A (8)*
+
+How long does it take your computer to add the first one million integers together via the use of a `for` loop? Determine this via the use of `system.time()`. How about ten million? One hundred million? Have the number of integers to add together be an input to your function, so that you do not repeat defining the function over and over. (This would be bad form.) If you look at the `user` field in the output, you should see that this additive operation scales approximately linearly with time, i.e., it scales as $\mathcal{O}(n)$, where $n$ is the number of integers. ($\mathcal{O}$ represents "big O notation" [feel free to Google it]. In life, you prefer operations that scale as $\mathcal{O}(n)$ or $\mathcal{O}(n \log n)$, while being leery of operations that are $\mathcal{O}(n^2)$ or slower. I'm looking at you, Support Vector Machine.)
+```{r linewidth=80}
+# FILL ME IN
+```
+
+---
+
+Here we load in the `R` variable `air.passengers`:
+```{r linewidth=80}
+load(url("http://www.stat.cmu.edu/~mfarag/350/AirPassengers.Rdata"))
+```
+
+---
+
+## Question 11
+*(5 points)*
+
+*Notes 10B (3-4)*
+
+Convert the numeric vector `air.passengers` to a time-series object. The data are collected monthly and the first datum is from January 1949. Plot your time-series object via `plot()`. Change the y-axis label to say "Number of Passengers (in Thousands)".
+```{r}
+# FILL ME IN
+```
+
+## Question 12
+*(5 points)*
+
+*Notes 10B (5-6)*
+
+Determine the average number of air passengers per month as a function of year. Then determine the average number of air passengers traveling in January and July, also as a function of year. Plot all three quantities on the same panel. (This involves using `plot()` followed by `lines()` followed by `lines()`; each call plots a separate quantity.) Set the y-axes limits to be 0 to 600, set the line type for July to be 2 (`lty=2`) and for January to be 3 (`lty=3`). Lastly, add a legend to the plot panel the indicates which line is which. See the examples in the `legend()` documentation, or mine Google for examples, as you would in real life. Note: the July data will appear "offset" compared to the other two sets of data; don't worry about this.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 13
+*(5 points)*
+
+*Not in Notes*
+
+The plot that you made in Q12 indicates that there is definitely an overall trend in the data: the number of passengers is growing larger year-by-year. In Q12, you made an estimate of the trend by using the sample mean in each year. Another way to do this is with `lowess()`, which you have used previously. Below, plot the time series for `air.passengers`, and overlay an estimate of the trend using `lowess()`. Change the argument `f` to improve the estimate without losing the overall smoothness in the trend.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 14
+*(5 points)*
+
+*Notes 10B (7)*
+
+Decompose the `air.passengers` time series using the `decompose()` function. Plot the decomposition.
+```{r linewidth=80}
+# FILL ME IN
+```
+
+## Question 15
+*(5 points)*
+
+*Notes 10B (8-9)*
+
+Plot the autocorrelation function (acf) for the `air.passengers` time series. From its appearance, do you think that the random portion of the `air.passengers` time series is well-modeled? (The appearance of the random component in the decomposition plot might offer a clue here.)
+```{r linewidth=80}
+# FILL ME IN
+```
+```
+FILL ME IN
+```
+
+## Question 16
+*(5 points)*
+
+*Notes 10C (4-6)*
+
+As stated in the notes, we don't have to cast an input time series to class `ts` prior to creating a periodogram, but it doesn't necessarily hurt to do so. Plot the periodogram of your `air.passengers` time series. Set `log="no"`. What do you see? Google "harmonics periodogram" and explain what you see. (Note that a linear trend was removed prior to spectral decomposition!)
+```{r linewidth=80}
+# FILL ME IN
+```
+```
+FILL ME IN
+```
+
+## Question 17
+*(5 points)*
+
+*Notes 10C (4-6)*
+
+Plot the periodogram for the seasonal component of your decomposition of the `air.passengers` time series. You should observe something similar to what you observed in Q16.
+```{r}
+# FILL ME IN
+```
+
+## Question 18
+*(5 points)*
+
+*Notes 10C (6)*
+
+Now plot the periodogram for the random component of your decomposition of the `air.passengers` time series. When you get rid of the `NA`s in the `random` vector, the time series element is lost. So here, after you get rid of the `NA`s, cast `random` back to a `ts`-class object, with the `start` being July 1949. Then pass `random` on... What do you observe? Compare the amplitudes of the peaks to the amplitudes you see above in the plot for Q17. Is there any visual evidence for a non-seasonal periodic component to the data?
+```{r}
+# FILL ME IN
+```
+```
+FILL ME IN
+```
