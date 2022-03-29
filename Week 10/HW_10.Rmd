@@ -11,9 +11,9 @@ output:
     theme: spacelab
 ---
 
-Name: 
+Name: Sophia Li
 
-Andrew ID: 
+Andrew ID: sophiali
 
 You must submit **your own** HW as a knitted PDF file on Gradescope.
 

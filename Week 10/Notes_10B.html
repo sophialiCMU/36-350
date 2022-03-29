@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="36-350 – Statistical Computing" />
+  <meta name="font-size-adjustment" content="-1"/>
+  <title>R: Time Series</title>
+  <style type="text/css">
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+            pre > code.sourceCode { white-space: pre; position: relative; }
+            pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+            pre > code.sourceCode > span:empty { height: 1.2em; }
+            .sourceCode { overflow: visible; }
+            code.sourceCode > span { color: inherit; text-decoration: inherit; }
+            div.sourceCode { margin: 1em 0; }
+            pre.sourceCode { margin: 0; }
+            @media screen {
+            div.sourceCode { overflow: auto; }
+            }
+            @media print {
+            pre > code.sourceCode { white-space: pre-wrap; }
+            pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+            }
+            pre.numberSource code
+              { counter-reset: source-line 0; }
+            pre.numberSource code > span
+              { position: relative; left: -4em; counter-increment: source-line; }
+            pre.numberSource code > span > a:first-child::before
+              { content: counter(source-line);
+                position: relative; left: -1em; text-align: right; vertical-align: baseline;
+                border: none; display: inline-block;
+                -webkit-touch-callout: none; -webkit-user-select: none;
+                -khtml-user-select: none; -moz-user-select: none;
+                -ms-user-select: none; user-select: none;
+                padding: 0 4px; width: 4em;
+                color: #aaaaaa;
+              }
+            pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+            div.sourceCode
+              {   }
+            @media screen {
+            pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+            }
+            code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+            code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+            code span.at { color: #7d9029; } /* Attribute */
+            code span.bn { color: #40a070; } /* BaseN */
+            code span.bu { } /* BuiltIn */
+            code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+            code span.ch { color: #4070a0; } /* Char */
+            code span.cn { color: #880000; } /* Constant */
+            code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+            code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+            code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+            code span.dt { color: #902000; } /* DataType */
+            code span.dv { color: #40a070; } /* DecVal */
+            code span.er { color: #ff0000; font-weight: bold; } /* Error */
+            code span.ex { } /* Extension */
+            code span.fl { color: #40a070; } /* Float */
+            code span.fu { color: #06287e; } /* Function */
+            code span.im { } /* Import */
+            code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+            code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+            code span.op { color: #666666; } /* Operator */
+            code span.ot { color: #007020; } /* Other */
+            code span.pp { color: #bc7a00; } /* Preprocessor */
+            code span.sc { color: #4070a0; } /* SpecialChar */
+            code span.ss { color: #bb6688; } /* SpecialString */
+            code span.st { color: #4070a0; } /* String */
+            code span.va { color: #19177c; } /* Variable */
+            code span.vs { color: #4070a0; } /* VerbatimString */
+            code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+          </style>
+  <style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <script src="Notes_10B_files/header-attrs-2.11/header-attrs.js"></script>
+  <link href="Notes_10B_files/slidy-2/styles/slidy.css" rel="stylesheet" />
+  <script src="Notes_10B_files/slidy-2/scripts/slidy.js"></script>
+  <script src="Notes_10B_files/slidy_shiny-1/slidy_shiny.js"></script>
+</head>
+<body>
+<div class="slide titlepage">
+  <h1 class="title">R: Time Series</h1>
+  <p class="author">
+36-350 – Statistical Computing
+  </p>
+  <p class="date">Week 10 – Spring 2022</p>
+</div>
+<div id="the-setting" class="slide section level1">
+<h1>The Setting</h1>
+<p>Assume that you have a dataset comprised of some response variable (e.g., counts) as a function of evenly spaced, discrete times <span class="math inline">\(t_i\)</span>. (For example, you saw 10 events in January, then 7 in February, etc.) In this set of notes, we will provide basic functions for visualizing such data and for processing them so as to estimate the correlation between the data in successive bins.</p>
+<p>(Note that we will not discuss how to <em>model</em> such data, just how to perform basic, initial processing.)</p>
+</div>
+<div id="ts-class-time-series" class="slide section level1">
+<h1>ts Class: Time Series</h1>
+<p>The first step is to convert our timing data, which here will be input into a data frame from a file, into an instance of the <code>ts</code> class.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">=</span> <span class="fu">read.table</span>(<span class="fu">url</span>(<span class="st">&quot;http://www.stat.cmu.edu/~mfarag/350/Maine.dat&quot;</span>),<span class="at">header=</span><span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(dat,<span class="dv">3</span>)</span></code></pre></div>
+<pre><code>##   unemploy
+## 1      6.7
+## 2      6.7
+## 3      6.4</code></pre>
+<p>The data contain no information about the starting date, so you need to provide that information yourself:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>maine.ts <span class="ot">=</span> <span class="fu">ts</span>(dat,<span class="at">start=</span><span class="fu">c</span>(<span class="dv">1996</span>,<span class="dv">1</span>),<span class="at">frequency=</span><span class="dv">12</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(maine.ts)</span></code></pre></div>
+<pre><code>##      Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
+## 1996 6.7 6.7 6.4 5.9 5.2 4.8 4.8 4.0 4.2 4.4 5.0 5.0
+## 1997 6.4 6.5 6.3 5.9 4.9 4.8 4.5 4.0 4.1 4.3 4.8 5.0
+## 1998 6.2 5.7 5.6 4.6 4.0 4.2 4.1 3.6 3.7 4.1 4.3 4.0
+## 1999 4.9 5.0 4.6 4.3 3.9 4.0 3.6 3.3 3.1 3.3 3.7 3.7
+## 2000 4.4 4.4 4.1 3.5 3.1 3.0 2.8 2.5 2.6 2.8 3.1 3.0
+## 2001 3.9 4.2 4.0 4.1 3.5 3.5 3.4 3.1 3.4 3.7 4.0 4.0
+## 2002 5.0 4.9 5.0 4.7 4.0 4.2 4.0 3.6 3.7 3.9 4.5 4.6
+## 2003 5.6 5.8 5.6 5.5 4.8 4.9 4.8 4.3 4.5 4.6 4.8 4.7
+## 2004 5.6 5.6 5.5 4.8 4.2 4.3 4.2 3.8 4.0 4.2 4.6 4.6
+## 2005 5.5 5.8 5.5 5.2 4.7 4.6 4.5 4.1 4.4 4.4 4.8 4.6
+## 2006 5.3 5.6 4.9 4.6 4.2 4.4 4.4 3.9</code></pre>
+<p>As you might be able to tell, there are underlying assumptions regarding time-series. <code>frequency</code> is assumed to be the number of observations in a given year: if 12, the data are displayed by month; if 4, by quarter; etc.</p>
+</div>
+<div id="ts-plotting" class="slide section level1">
+<h1>ts: Plotting</h1>
+<p>One can easily plot a <code>ts</code> object:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(maine.ts)</span></code></pre></div>
+<p><img src="Notes_10B_files/figure-slidy/unnamed-chunk-4-1.png" width="384" style="display: block; margin: auto;" /> The generic <code>plot</code> function detects that <code>maine.ts</code> is a <code>ts</code>-class object, and shunts <code>maine.ts</code> to <code>plot.ts()</code>, which knows how to construct a plot for time-series data.</p>
+</div>
+<div id="ts-aggregate" class="slide section level1">
+<h1>ts: aggregate()</h1>
+<p>To smooth the data to look for underlying trends, you can use <code>aggregate()</code> (or more specifically, <code>aggregate.ts()</code>):</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>maine.ts.annual <span class="ot">=</span> <span class="fu">aggregate</span>(maine.ts)<span class="sc">/</span><span class="dv">12</span>  <span class="co"># average annual unemployment</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(maine.ts.annual)</span></code></pre></div>
+<p><img src="Notes_10B_files/figure-slidy/unnamed-chunk-5-1.png" width="384" style="display: block; margin: auto;" /> Note how the function by default knew to aggregate the data over one-year periods. If we wanted to look at the average unemployment for, e.g., every six months, we could apply the <code>nfrequency</code> argument:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>maine.ts<span class="fl">.6</span>month <span class="ot">=</span> <span class="fu">aggregate</span>(maine.ts,<span class="at">nfrequency=</span><span class="dv">2</span>)<span class="sc">/</span><span class="dv">6</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(maine.ts<span class="fl">.6</span>month)</span></code></pre></div>
+<p><img src="Notes_10B_files/figure-slidy/unnamed-chunk-6-1.png" width="384" style="display: block; margin: auto;" /></p>
+</div>
+<div id="ts-window" class="slide section level1">
+<h1>ts: window()</h1>
+<p><code>ts</code>-class objects are not data frames. So even if it appears like it should be straightforward to, e.g., extract the column of data showing unemployment every March, it is not: you need to apply the <code>window()</code> function:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">window</span>(maine.ts,<span class="at">start=</span><span class="fu">c</span>(<span class="dv">1996</span>,<span class="dv">3</span>),<span class="at">freq=</span><span class="cn">TRUE</span>) <span class="co"># compare output with full print-out above</span></span></code></pre></div>
+<pre><code>## Time Series:
+## Start = 1996.167 
+## End = 2006.167 
+## Frequency = 1 
+##       unemploy
+##  [1,]      6.4
+##  [2,]      6.3
+##  [3,]      5.6
+##  [4,]      4.6
+##  [5,]      4.1
+##  [6,]      4.0
+##  [7,]      5.0
+##  [8,]      5.6
+##  [9,]      5.5
+## [10,]      5.5
+## [11,]      4.9</code></pre>
+</div>
+<div id="ts-decompose" class="slide section level1">
+<h1>ts: decompose()</h1>
+<p>A common assumption about a time series is that it can be <em>additively decomposed</em>, i.e., we can assume that <span class="math display">\[
+x_t = m_t + s_t + z_t \,,
+\]</span> where <span class="math inline">\(m_t\)</span> is an underlying smooth trend, <span class="math inline">\(s_t\)</span> is a seasonal component with period one year, and <span class="math inline">\(z_t\)</span> is the residual random variation. Generally, in time-series analyses, we are interested in modeling <span class="math inline">\(z_t\)</span> after the more deterministic components <span class="math inline">\(m_t\)</span> and <span class="math inline">\(s_t\)</span> have been removed from the data.</p>
+<p>We will not discuss <em>how</em> decomposition is done here; that’s beyond the scope of these notes. We will just show an example:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">decompose</span>(maine.ts))</span></code></pre></div>
+<p><img src="Notes_10B_files/figure-slidy/unnamed-chunk-8-1.png" width="384" style="display: block; margin: auto;" /> The plot at bottom shows <span class="math inline">\(z_t\)</span>, which we can view as a sequence of potentially correlated random variables. (Note that because decomposition involves smoothing of the data, the first few months and the last few months of <span class="math inline">\(z_t\)</span> data are meaningless.) Modeling the level of correlation is also beyond the scope of these notes: usual approaches include random walks (i.e., Markov processes), autoregressive (AR) models, etc. What is not beyond the scope of these notes, however, is estimating the correlation structure in <span class="math inline">\(z_t\)</span>.</p>
+</div>
+<div id="autocorrelation" class="slide section level1">
+<h1>Autocorrelation</h1>
+<p>Before we show the autocorrelation of our dataset, let’s get some definitions squared away.</p>
+<ul>
+<li><em>Stationary</em>: a population quantity is stationary (or exhibits stationarity) if it does not change as a function of time. If a time series is second-order stationary, then the population mean <span class="math inline">\(\mu\)</span>, the population variance <span class="math inline">\(\sigma\)</span>, and the population autocorrelation <span class="math inline">\(\rho_k\)</span> are assumed constant as a function of <span class="math inline">\(t\)</span>.</li>
+<li><em>Lag</em>: denoted by <span class="math inline">\(k\)</span>, it is the number of periods between observations. If, e.g., <span class="math inline">\(k = 1\)</span>, then for the <code>maine.ts</code> data in particular we are looking at the correlation between one observation and one 12 months in the future, since <code>frequency=12</code>. (<span class="math inline">\(k\)</span> need not be integer! For instance, a lag of <span class="math inline">\(k = 1/12\)</span> denotes a lag of one month, i.e., the lag between one bin and the next.)</li>
+<li><em>Autocovariance</em>: this is a covariance function (denoted the acvf) defined for a lag <span class="math inline">\(k\)</span>: <span class="math display">\[
+\gamma_k = E[(x_t-\mu)(x_{t+k}-\mu)] \,.
+\]</span></li>
+<li><em>Autocorrelation</em>: this is the correlation function (denoted the acf) defined for a lag <span class="math inline">\(k\)</span>: <span class="math display">\[
+\rho_k = \frac{\gamma_k}{\sigma^2} \,.
+\]</span> By definition, <span class="math inline">\(\rho_0 = 1\)</span>, since <span class="math inline">\(\gamma_0 = V[x_t] = \sigma^2\)</span>.</li>
+</ul>
+</div>
+<div id="autocorrelation-1" class="slide section level1">
+<h1>Autocorrelation</h1>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">=</span> <span class="fu">acf</span>(maine.ts)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(a)</span></code></pre></div>
+<pre><code>## [1] &quot;acf&quot;    &quot;type&quot;   &quot;n.used&quot; &quot;lag&quot;    &quot;series&quot; &quot;snames&quot;</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(a)</span></code></pre></div>
+<p><img src="Notes_10B_files/figure-slidy/unnamed-chunk-9-1.png" width="384" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>random.comp <span class="ot">=</span> <span class="fu">decompose</span>(maine.ts)<span class="sc">$</span>random</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>random.comp <span class="ot">=</span> random.comp[<span class="sc">!</span><span class="fu">is.na</span>(random.comp)]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>a <span class="ot">=</span> <span class="fu">acf</span>(random.comp) <span class="co"># plot - not as ts object -- lag maps to bins -&gt; lag 1 == 1 month</span></span></code></pre></div>
+<p><img src="Notes_10B_files/figure-slidy/unnamed-chunk-10-1.png" width="384" style="display: block; margin: auto;" /></p>
+<p>The plot is dubbed a <em>correlogram</em> and the blue dashed lines are drawn at autocorrelation values of <span class="math inline">\((-1/n) \pm (2/\sqrt{n})\)</span>. Values that lie outside the lines are assumed “significant”: we reject the null hypothesis that the true value of the <span class="math inline">\(\rho_k\)</span> is zero. (The estimator is biased, hence the <span class="math inline">\(-1/n\)</span> in the definition of the blue dashed lines.) Here, it appears that the random data <span class="math inline">\(z_t\)</span> are positively correlated over time-scales of a few months and of approximately one year. If you are satisfied with this as an analyst, then your next step is modeling this structure.</p>
+<p>Interpreting a correlogram is an art. Here, we might be leery, since a gradual decline in <span class="math inline">\(\rho_k\)</span> can indicate a sub-optimally modeled trend (<span class="math inline">\(m_t\)</span>) and a peak at lag 1 can indicate sub-optimally modeled seasonality (<span class="math inline">\(s_t\)</span>). There are no easy answers here!</p>
+</div>
+
+  <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+
+</body>
+</html>
