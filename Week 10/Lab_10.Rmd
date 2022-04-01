@@ -51,7 +51,16 @@ date[5] = "12.25.88"       # 1988
 
 Convert each of the dates above to `Date` class format. Save the output for each. You cannot simply declare a vector of type `Date`, so I would suggest the following workaround: initialize a character vector of length 5, then for each date, cast the output of `as.Date()` back to character. When you are done with all five conversions, cast the full character vector back to `Date`. Kludgy, but it works. (There are other workarounds as well, but this is intuitively straightforward.)
 ```{r linewidth=80}
-# FILL ME IN
+temp = rep(as.Date('2000-01-01'), times = 5)
+updateDates = data.frame(dates = temp)
+updateDates[1,1] = as.Date(date[1], format="%B %d, %Y")
+updateDates[2,1] = as.Date(date[2], format="%d %B %Y")
+updateDates[3,1] = as.Date(date[3], format="%m-%d-%Y")
+updateDates[4,1] = as.Date(date[4], format="%m/%d/%Y")
+updateDates[5,1] = as.Date(sub("(..)$", "19\\1", date[5]), format="%m.%d.%Y")
+
+
+updateDates
 ```
 
 ## Question 2
@@ -61,7 +70,8 @@ Convert each of the dates above to `Date` class format. Save the output for each
 
 Determine the weekday for each of the dates above. What day of the week is it 100 days after the first date? (Display the result via code, don't just figure this out by hand!) What about 158 days before the second date?
 ```{r linewidth=80}
-# FILL ME IN
+lapply(updateDates, 2, FUN=weekdays)
+lapply(updateDates, FUN=function(x){as.Date(x)+100})
 ```
 
 ## Question 3
@@ -71,7 +81,7 @@ Determine the weekday for each of the dates above. What day of the week is it 10
 
 Write a codelet below that displays the current day of the week, one that works no matter when it is run.
 ```{r linewidth=80}
-# FILL ME IN
+weekdays(Sys.Date())
 ```
 
 ## Question 4
@@ -81,7 +91,20 @@ Write a codelet below that displays the current day of the week, one that works 
 
 Create a sorted sequence of five uniformly distributed random dates that lie between January 1, 1990, and January 1, 2000. Display your result.
 ```{r linewidth=80}
-# FILL ME IN
+start = julian(as.Date("01/01/1990",format="%m/%d/%Y"))
+end = julian(as.Date("01/01/2000", format="%m/%d/%Y"))
+
+samp = runif(5, min=start[1], max=end[1])
+o = samp[order(samp)]
+# as.Date(start[1], origin = "1970-01-01")
+# apply(as.data.frame(o), 2, FUN=round) %>% apply(., 2, FUN=as.Date, origin = "1970-01-01")
+new = rep(as.Date('2000-01-01'), times = 5)
+new[1] = as.Date(o[1], origin = "1970-01-01")
+new[2] = as.Date(o[2], origin = "1970-01-01")
+new[3] = as.Date(o[3], origin = "1970-01-01")
+new[4] = as.Date(o[4], origin = "1970-01-01")
+new[5] = as.Date(o[5], origin = "1970-01-01")
+new
 ```
 
 ## Question 5

@@ -19,6 +19,7 @@ You must submit **your own** HW as a knitted PDF file on Gradescope.
 
 ```{r wrap-hook,echo=FALSE}
 library(knitr)
+library(tidyverse)
 hook_output = knit_hooks$get('output')
 knit_hooks$set(output = function(x, options) {
   # this hook is used only when the linewidth option is not NULL
@@ -55,12 +56,24 @@ suppressWarnings(library(tidyverse))
 
 How old (in days) were sprinters on the days they achieved fast times? Below, we read in `sprint.lines`. Your goal: examine `sprint.lines`, extract the birthdays and the sprint days for each line, and determine the difference. Histogram your result. (Change the x-axis label to "Sprinter Age (Days)". You should observe a skew distribution that peaks between 8,000 and 9,000 days.
 ```{r linewidth=80}
-sprint.lines = readLines("http://www.stat.cmu.edu/~mfarag/350/men_100m.html")
-data.lines = grep(" +(9|10)\\.",sprint.lines)
-sprint.lines = sprint.lines[min(data.lines):max(data.lines)]
-sprint.lines[1] = substr(sprint.lines[1],10,nchar(sprint.lines[1]))
+# sprint.lines = readLines("http://www.stat.cmu.edu/~mfarag/350/men_100m.html")
+# data.lines = grep(" +(9|10)\\.",sprint.lines)
+# sprint.lines = sprint.lines[min(data.lines):max(data.lines)]
+# sprint.lines[1] = substr(sprint.lines[1],10,nchar(sprint.lines[1]))
 
 # FILL ME IN
+df1 = apply(data.frame(sprint.lines), MARGIN=1 , FUN = function(x){x[x !=" "]}) %>%
+  data.frame(.)
+# df3 = lapply(df1, FUN = function(x){x[!x == ""]})
+# print("hi")
+gsub
+# df2 = apply(data.frame(sprint.lines), MARGIN = 1, FUN= gsub, pattern = " ", replacement = "")
+# df2
+# lapply(df1[[1]], FUN=function(x){x[!x==""]})
+  # lapply(., FUN = function(x){x[!x == ""]})
+# t = strsplit(sprint.lines[1], " ")
+# data.frame(lapply(t, function(x){x[!x == ""]}))
+# data.frame(sprint.lines)
 ```
 
 ---
