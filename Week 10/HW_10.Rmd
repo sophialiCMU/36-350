@@ -132,7 +132,21 @@ plot(t,y,typ="l",xlab="Date (in Years from Time Zero)",ylab="True Magnitude")
 
 How well can you estimate the mean magnitude of this source if you observe it at $n$ random times sampled uniformly over five years? (This isn't really about `Date` or `POSIXlt`, but a more general exercise that reminds you that features that you extract from any set of data$-$like a time series of measurements$-$are random variables...and that the more times you look, the better your estimate.) Write a function that generates $n$ data given the model above. Assume each measurement has an additive uncertainty $\epsilon ~ N(0,(0.2)^2)$. Call your function $k = 1000$ times, and save the mean of the magnitude observed with each call. Try $n$ = 10, $n$ = 20, and $n$ = 40, and record (and display!) the sample standard deviations of the magnitude means. You should see that the sample standard deviation for $n$ = 40 is roughly half that for $n$ = 10. $\sqrt{n}$ n'at.
 ```{r linewidth=80}
-# FILL ME IN
+set.seed(808)
+my.fun = function(x) {
+  sample = runif(x, 1, 5)
+  uncertain = rnorm(x, 0, (0.2)^2)
+  sample + uncertain
+}
+
+# data = matrix(rep(0, 1000), ncol=1)
+# data = apply(data, 1, FUN=fun)
+# mean(data)
+n.obs = 1000
+n.data = 5
+data = matrix(sample(5, size=n.obs*n.data, replace=TRUE), ncol=n.data)
+math.vector = apply(data,1,function(x){my.fun(x)})
+mean(math.vector)
 ```
 
 ## Question 5
