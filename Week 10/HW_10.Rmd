@@ -109,10 +109,11 @@ plot(dates.ts, xlab="Time", ylab="Total Number of Objects Loaned")
 
 Construct a periodogram for the time-series data in Q2. Determine how many cycles correspond to the maximum spectral value by dividing the maximum `frequency` value by the `frequency` value associated with the maximum `spectrum` value. Interpret that number of cycles.
 ```{r linewidth=80}
-# FILL ME IN
+periodogram = spectrum(dates.ts,log="no")
+max(periodogram$freq)/periodogram$freq[which.max(periodogram$spec)]
 ```
 ```
-FILL ME IN
+About every 3.75 cycles, you will see the maximal spectral value again. So in about 3 years and 9 months, you will get to see the same number of books loaned.
 ```
 
 ---
