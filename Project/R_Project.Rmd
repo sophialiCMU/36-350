@@ -106,19 +106,9 @@ loaned.day = apply(data.frame(file.edit$Loan.Date), 1, function(x){as.Date(x, fo
 # get days + times
 temp = paste(loaned.day, file.edit$Loan.Time)
 loaned = apply(data.frame(temp), 1, function(x){as.POSIXct(x, format="%Y-%m-%d %H:%M:%S")}) %>% as.POSIXct(., origin="1970-01-01")
-returned = apply(data.frame(file.edit$Return.Date), 1, function(x){as.POSIXct(x, format="%m/%d/%y")}) %>% as.POSIXct(., origin="1970-01-01")
 
 
-# file.edit[,2][is.na(returned)]
-# Q: to calculate the returned time when the item was not returned, should I do the current date or the date it was loaned?
-# returned[is.na(returned)] = loaned[is.na(returned)]
-
-returned[is.na(returned)] = Sys.time()
-days.out = (returned - loaned)/(60*60*24)
-data.frame(days.out)
-
-max = days.out[max(days.out)]
-max(days.out)
+max(loaned) - min(loaned)
 ```
 
 ## Question 4
@@ -126,7 +116,18 @@ max(days.out)
 
 Using your loan date and time from Q3 and the date from the `Return Date` column, create a histogram showing the length of time that items are loaned out, in *days*. (Limit your histogram to x-axis values 0 to 1000, and define the breaks to be every 10 days. Label the x-axis "Loan Duration (Days)". If using base `R`, set `main=NULL`. Color is up to you.) Don't worry about the fact that there is only a return date, and not a return time. Ignore items that had yet to be returned at the time the dataset was created (check for empty strings!), and note that the number of days will not be an integer, because you are incorporating the loan time. Filter out any data where the item was returned before it was loaned out(!). Note: no item was returned during the 1990s; this simplifies processing.
 ```{r linewidth=80}
-# FILL ME IN
+# get return days + times
+returned = apply(data.frame(file.edit$Return.Date), 1, function(x){as.POSIXct(x, format="%m/%d/%y")}) %>% as.POSIXct(., origin="1970-01-01")
+
+# Q: to calculate the returned time when the item was not returned, should I do the current date or the date it was loaned?
+# returned[is.na(returned)] = loaned[is.na(returned)]
+
+returned[is.na(returned)] = Sys.time()
+days.out = as.numeric((returned - loaned)/(60*60*24))
+data.frame(days.out)
+
+hist = hist(days.out, xlim=c(0,1000), breaks = 10000/10, xlab = "Loan Duration (Days)", main=NULL, col="limegreen")
+# !!!!!!!!!! CHECK FOR ITEM WAS RETURNED BEFORE IT WAS LOANED OUT!!!!!!!!!!!!
 ```
 
 ## Question 5
@@ -134,7 +135,17 @@ Using your loan date and time from Q3 and the date from the `Return Date` column
 
 The data displayed in your histogram in Q4 appear, at first glance, to be exponentially distributed, at least approximately. Fit an exponential distribution to these data using an appropriate optimizer. (You need not include the gradient here.) Display the optimized value of the `rate` parameter. Redisplay your histogram from Q4 with the optimized exponential pdf superimposed. (If you cannot see it: are you creating a frequency histogram, or a density histogram?) Don't expect the model to be a "good" one. Hint: if you have a hard time finding the optimum value, try plotting a few times with lines superimposed with different values of the `rate` parameter. This will help build your intuition.
 ```{r linewidth=80}
-# FILL ME IN
+# Get exponential prediction
+Time = seq(1, 1000, by=10)
+Counts = hist$counts[seq(1,100)]
+exponential.model <- lm(log(Counts)~ Time)
+lm(formula = log(Counts) ~ Time)
+
+# Plot
+timevalues = Time
+Counts.exponential2 = exp(predict(exponential.model,list(Time=timevalues)))
+plot(Time, Counts,pch=16)
+lines(timevalues, Counts.exponential2,lwd=2, col = "red", xlab = "Time (s)", ylab = "Counts")
 ```
 
 ## Question 6
