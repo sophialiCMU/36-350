@@ -1,0 +1,16 @@
+
+names(file)
+#  [1] "ï..Loans..Not.In.House."     
+#  [2] "LC.Classification.Top.Line"  
+#  [3] "Loan.Date"                   
+#  [4] "Loan.Time"                   
+#  [5] "Return.Date"                 
+#  [6] "Patron.Group"                
+#  [7] "Material.Type"               
+#  [8] "Title"                       
+#  [9] "Begin.Publication.Date"      
+# [10] "Publisher"                   
+# [11] "Language.Code"               
+# [12] "Subjects"                    
+# [13] "LC.Classification.Top.Line.1"
+# [14] "Library.Code" 
