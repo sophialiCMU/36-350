@@ -119,14 +119,22 @@ Using your loan date and time from Q3 and the date from the `Return Date` column
 # get return days + times
 returned = apply(data.frame(file.edit$Return.Date), 1, function(x){as.POSIXct(x, format="%m/%d/%y")}) %>% as.POSIXct(., origin="1970-01-01")
 
-## Filter out items that we're returned or were returned before loaned out
+## Calculated days out
 days.out = as.numeric((returned - loaned)/(60*60*24))
+df.days.out = data.frame(days.out)
+
+## Filter rest of file
+new.file.edit = file.edit
+new.file.edit["days.out"] = days.out
+new.file.edit = new.file.edit %>% filter(!is.na(new.file.edit$days.out))
+new.file.edit = new.file.edit %>% filter(new.file.edit$days.out >= 0)
+
+## Filter out items that we're returned or were returned before loaned out
 days.out = data.frame(days.out) %>% filter(., !is.na(days.out)) %>%
   filter(., days.out >= 0)
-# days.out
+
 
 hist = hist(days.out$days.out, xlim=c(0,1000), breaks = 10000/10, xlab = "Loan Duration (Days)", main=NULL, col="limegreen")
-# !!!!!!!!!! CHECK FOR ITEM WAS RETURNED BEFORE IT WAS LOANED OUT!!!!!!!!!!!!
 ```
 
 ## Question 5
@@ -173,6 +181,8 @@ lines(data.df$x, predict(model, list(x = data.df$x)), col = 'purple', lwd = 3)
 
 alpha.0
 beta.0
+model.0
+##** Need to do someting to show rate parameter.
 ```
 
 ## Question 6
@@ -196,10 +206,11 @@ Using *inverse-transform sampling*, sample 100 data from the optimal exponential
 
 Determine the average length in days for a loan for each group of Carnegie Mellon-affiliated patrons, by which we mean each element of the `Patron Group` column that begins with "Carnegie Mellon". (There are five in all.) To be clear: you are to approach this as a "split-apply-combine" problem, as opposed to extracting information for each group separately one after the other. A few notes here that might be helpful: (1) you have to initially filter the `Patron Group` column *in the exact same manner* that you filtered the loan dates in Q4, so that each element of the filtered `Patron Group` column matches 1-to-1 with a loan duration; (2) after this, you filter the patron group and loan duration vectors *again*, to limit yourself to CMU-affiliated patrons; and (3) if `pg` is your filtered patron group vector, do `pg = droplevels(pg)` so that the other non-CMU-related factor levels are dropped (otherwise you'll get output for *all* patron groups, with most displaying `NA` for the average loan duration). You can apply either base `R` or `tidyverse` functions to compute your answers. Note that I personally get 184.16142 for CMU faculty: we keep items for six months on average.
 ```{r linewidth=80}
-file.edit$Patron.Group = as.factor(file.edit$Patron.Group)
-pg = file.edit$Patron.Group
+Q8.file.edit = new.file.edit
+Q8.file.edit$Patron.Group = as.factor(new.file.edit$Patron.Group)
+pg = Q8.file.edit$Patron.Group
 
-temp.df = data.frame(days.out = days.out, Patron.Group = file.edit$Patron.Group)
+temp.df = data.frame(days.out = Q8.file.edit$days.out, Patron.Group = Q8.file.edit$Patron.Group)
 
 
 pg =droplevels(pg, c("Items charged to the bindery",
@@ -230,7 +241,16 @@ ave.patron
 
 How many items were loaned on average on each day of the week in 2018? In other words, how many loans were made on average on Mondays, and on average on Tuesdays, etc.? In Q3, you created a vector of dates and times for all loans. Subset this vector to include only loans during 2018, and then determine the day associated with each date/time. To force the days to be in order, cast the vector of day names to a factor variable, and explicitly set the levels of that variable to "Monday", "Tuesday", etc. Last thing to remember: most days occur 52 times during a year, but one occurred 53 times in 2018. This will affect your computation of the mean! Note: I found an average of 23.09615 loans on each Saturday of 2018.
 ```{r linewidth=80}
-# FILL ME IN
+only.2018 = loaned.day[loaned.day >= as.Date("2018-01-01", origin="1970-01-01") &
+             loaned.day <= as.Date("2018-12-31", origin="1970-01-01")]
+
+weekdays = weekdays(only.2018) %>% as.factor %>% as.data.frame()
+weekdays.split = split(weekdays, f=weekdays)
+
+sapply(weekdays.split, FUN=function(x){
+  if (x[[1]] == "Monday") { nrow(x)/53}
+  else { nrow(x)/52} } )
+# sapply(weekdays.split, FUN=function(x){nrow(x)/52} )
 ```
 
 ## Question 10
