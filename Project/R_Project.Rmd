@@ -119,14 +119,11 @@ Using your loan date and time from Q3 and the date from the `Return Date` column
 # get return days + times
 returned = apply(data.frame(file.edit$Return.Date), 1, function(x){as.POSIXct(x, format="%m/%d/%y")}) %>% as.POSIXct(., origin="1970-01-01")
 
-# Q: to calculate the returned time when the item was not returned, should I do the current date or the date it was loaned?
-# returned[is.na(returned)] = loaned[is.na(returned)]
-
-# returned[!is.na(returned)] = Sys.time()
+## Filter out items that we're returned or were returned before loaned out
 days.out = as.numeric((returned - loaned)/(60*60*24))
 days.out = data.frame(days.out) %>% filter(., !is.na(days.out)) %>%
   filter(., days.out >= 0)
-days.out
+# days.out
 
 hist = hist(days.out$days.out, xlim=c(0,1000), breaks = 10000/10, xlab = "Loan Duration (Days)", main=NULL, col="limegreen")
 # !!!!!!!!!! CHECK FOR ITEM WAS RETURNED BEFORE IT WAS LOANED OUT!!!!!!!!!!!!
@@ -154,12 +151,13 @@ data.df = data.frame(x = hist$breaks[seq(1,100)],
                      y = hist$counts[seq(1,100)])
 
 # plot data
-plot(data.df$x, data.df$y)
+# plot(data.df$x, data.df$y)
 
 # Select an approximate $\theta$, since theta must be lower than min(y), and greater than zero
 theta.0 <- min(data.df$y) * 0.5
 
 # Estimate the rest parameters using a linear model
+data.df$y[data.df$y == 0] = 0.0001 # have to ensure there are no ln(0)'s
 model.0 <- lm(log(y - theta.0) ~ x, data=data.df)
 alpha.0 <- exp(coef(model.0)[1])
 beta.0 <- coef(model.0)[2]
@@ -170,8 +168,11 @@ start <- list(alpha = alpha.0, beta = beta.0, theta = theta.0)
 model <- nls(y ~ alpha * exp(beta * x) + theta , data = data.df, start = start)
 
 # Plot fitted curve
-hist = hist(days.out, xlim=c(0,1000), breaks = 10000/10, xlab = "Loan Duration (Days)", main=NULL, col="limegreen")
+hist = hist(days.out$days.out, xlim=c(0,1000), breaks = 10000/10, xlab = "Loan Duration (Days)", main=NULL, col="limegreen")
 lines(data.df$x, predict(model, list(x = data.df$x)), col = 'purple', lwd = 3)
+
+alpha.0
+beta.0
 ```
 
 ## Question 6
