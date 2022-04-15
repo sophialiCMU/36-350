@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="36-350 – Statistical Computing" />
+  <meta name="font-size-adjustment" content="-1"/>
+  <title>PostgreSQL: Data I/O</title>
+  <style type="text/css">
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+              </style>
+  <script src="Notes_12C_files/header-attrs-2.11/header-attrs.js"></script>
+  <link href="Notes_12C_files/slidy-2/styles/slidy.css" rel="stylesheet" />
+  <script src="Notes_12C_files/slidy-2/scripts/slidy.js"></script>
+  <script src="Notes_12C_files/slidy_shiny-1/slidy_shiny.js"></script>
+</head>
+<body>
+<div class="slide titlepage">
+  <h1 class="title">PostgreSQL: Data I/O</h1>
+  <p class="author">
+36-350 – Statistical Computing
+  </p>
+  <p class="date">Week 12 – Spring 2022</p>
+</div>
+<div id="copying-a-table-into-sql" class="slide section level1">
+<h1>Copying a Table Into SQL</h1>
+<p>If you have a text file whose columns you wish to input into
+<code>postgres</code>, you would use <code>copy</code>:</p>
+<pre><code>copy &lt;SQL table name&gt;
+  from &#39;&lt;name of file on disk&gt;&#39;
+  with ( format &lt;format&gt;,... );</code></pre>
+<p>We will show various examples on the next few slides. However, two
+points:</p>
+<ul>
+<li>Your <code>postgres</code> installation may complain when you try to
+use <code>copy</code>. The alternative is <code>\copy</code>, with the
+same arguments/clauses, but no hard returns (you have to specify
+everything on one line before hitting return, with no <code>;</code>
+needed).</li>
+<li>You need to set up an empty table in your <code>postgres</code>
+session first!</li>
+</ul>
+</div>
+<div id="copying-a-table-into-sql-1" class="slide section level1">
+<h1>Copying a Table Into SQL</h1>
+<p>Important arguments in the <code>copy</code> command include</p>
+<ul>
+<li><code>format &lt;format&gt;</code>, where
+<code>&lt;format&gt;</code> can be <code>csv</code>, <code>text</code>,
+or <code>binary</code></li>
+<li><code>header</code>, which just by itself indicates that there is a
+header to be skipped over</li>
+<li><code>delimiter '&lt;character&gt;'</code>, which allows you to
+specify how the fields in the input file are separated (default comma
+for <code>csv</code> and tab for <code>text</code>).</li>
+</ul>
+</div>
+<div id="copy-example-i" class="slide section level1">
+<h1>Copy: Example I</h1>
+<p>Earlier in this course, we learned how to input files like
+<code>emline.csv</code>. Here we will input its contents into a
+<code>postgres</code> session. We assume that you have used
+<code>\cd</code> to change the working directory to where the data file
+resides.</p>
+<p>On this slide, we assume that every column of the input file
+corresponds to a column in the table, with the first columns matching,
+then the second columns, etc.</p>
+<pre><code>create table emline (
+  O_II_3729 numeric, H_gamma numeric, H_beta numeric,
+  O_III_4959 numeric, O_III_5007 numeric, N_II_6548 numeric,
+  H_alpha numeric, N_II_6584 numeric, S_II_6717 numeric,
+  S_II_6731 numeric, mass numeric, sfr numeric
+);
+
+\copy emline from &#39;emline.csv&#39; with (format csv,header);
+
+select mass from emline limit 3;
+  mass  
+--------
+ 9.9484
+ 9.9976
+ 9.8058
+(3 rows)</code></pre>
+<p>Note: to save a table to a csv file, simply change <code>from</code>
+to <code>to</code>.</p>
+<pre><code>\copy emline (mass,sfr) to &#39;tmp.csv&#39; with (format csv,header);</code></pre>
+</div>
+<div id="copy-example-ii" class="slide section level1">
+<h1>Copy: Example II</h1>
+<p>If you have <em>more columns in your postgres table than are in the
+csv file</em>, you would amend your <code>copy</code> command so as to
+tell <code>postgres</code> where to put the input data.</p>
+<p>Here I define the same table as on the last slide, except that I add
+a column called <code>foo</code>:</p>
+<pre><code>create table emline (
+  O_II_3729 numeric, H_gamma numeric, H_beta numeric,
+  foo varchar(10),
+  O_III_4959 numeric, O_III_5007 numeric, N_II_6548 numeric,
+  H_alpha numeric, N_II_6584 numeric, S_II_6717 numeric,
+  S_II_6731 numeric, mass numeric, sfr numeric
+);
+
+\copy emline (O_II_3729, H_gamma, H_beta, O_III_4959, O_III_5007, 
+N_II_6548, H_alpha, N_II_6584, S_II_6717, S_II_6731, mass, sfr) 
+from &#39;emline.csv&#39; with (format csv,header);
+
+select * from emline limit 1;
+ o_ii_3729 | h_gamma | h_beta | foo | o_iii_4959 | o_iii_5007 | n_ii_6548 | ...
+-----------+---------+--------+-----+------------+------------+-----------+ ...
+    1.5364 |  1.7004 | 0.3709 |     |    -0.0549 |     0.6216 |    0.4846 | ...
+(1 row)</code></pre>
+<p>Note that <code>foo</code> is skipped over and a default value (here,
+nothing) is inserted. (Note that hard returns were introduced into the
+<code>\copy</code> command above for readability, but in actuality the
+entire command should be on one line.)</p>
+</div>
+<div id="copy-example-iii" class="slide section level1">
+<h1>Copy: Example III</h1>
+<p>If you have <em>fewer columns in your postgres table than are in the
+csv file</em>, you would create a temporary table that takes in the
+entire csv file, then you would select columns from that table.</p>
+<p>Assume, for instance, that the <code>emline</code> table(s) on the
+last two slides are examples of such temporary tables. You’ve read data
+into <code>emline</code>, but you really just want a table with
+<code>mass</code> and <code>sfr</code> as columns…what now?</p>
+<pre><code>create table emline_reduced (
+  mass numeric, sfr numeric
+);
+
+insert into emline_reduced (mass,sfr)
+  select mass,sfr
+  from emline;
+
+select * from emline_reduced limit 1;
+  mass  |  sfr  
+--------+-------
+ 9.9484 | -9999
+(1 row)
+
+drop table emline;</code></pre>
+<p>Not necessarily efficient, but it gets the job done. We note that we
+used another variant of <code>insert</code> here that utilized
+<code>select</code> so that we would not have to insert thousands of
+rows by hand. You’ll see more examples of this type of insertion next
+week.</p>
+</div>
+
+  <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+
+</body>
+</html>

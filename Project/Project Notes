@@ -1,6 +1,8 @@
+carnivalweek
+
 
 names(file)
-#  [1] "ï..Loans..Not.In.House."     
+#  [1] "?..Loans..Not.In.House."     
 #  [2] "LC.Classification.Top.Line"  
 #  [3] "Loan.Date"                   
 #  [4] "Loan.Time"                   
@@ -14,3 +16,35 @@ names(file)
 # [12] "Subjects"                    
 # [13] "LC.Classification.Top.Line.1"
 # [14] "Library.Code" 
+
+
+Tips:
+- Carefully read instructions. Think of it as a take home test. No collaboration at all.
+
+High level overview:
+- 20 questions with same dataset
+- first few questions is importing data and getting it in a nice format
+- Q1 bring in data
+- Q2 remove unneccessary
+- Q3 range of time items were loaned
+- Q4 histogram using return data column
+Pretty comprehensive
+- Q5 update histogram w/ exponential
+- Q6 bootstraping
+- Q7 invese trans sampling
+- Q8 different patron groups
+- Q9 see how many items were loaned on average per week in 2018
+- Q10 time series information from last week
+- Q11 create function 
+- Q12 look at different libraries (Hunt and Sorelles)
+- Q13 look at library of congress classification
+- Q14 looking at most commonly appearing words in title (gsub)
+- Q15 dealing with NAs (# NAs in each column)
+- Q16 ggplot
+- Q17 each item has some # of subjects (regex, sapply)
+- Q18 histogram based on specific information
+- Q19 how many complete cases (no rows where an NA or empty string)
+- Q20 gitHub
+
+
+
