@@ -258,10 +258,19 @@ sapply(weekdays.split, FUN=function(x){
 
 Create a time series for the loans in 2018, and then plot both the time series and its periodogram. Note that you should cast your date-and-time vector that you created in Q9 to `Date`, then use `table()` to determine the number of loans per date. You will probably have to look back at HW 10 (Q2, in particular) to recall how to define a time series for daily data. Finally: after you create your periodogram, determine the two most dominant frequencies and interpret them below.
 ```{r linewidth=80}
-# FILL ME IN
+# spectrum(only.2018)
+start = as.numeric(format(as.Date("2018-01-01", origin="01-01-1970"), format="%j"))
+
+count.table = table(only.2018)
+sorted = names(count.table)
+dates.ts = ts(count.table, start = c(2019, start), frequency = 365)
+
+# plot(dates.ts, xlab="Time", ylab="Total Number of Objects Loaned")
+periodogram = spectrum(dates.ts,log="no")
+max(periodogram$freq)/periodogram$freq[which.max(periodogram$spec)]
 ```
 ```
-FILL ME IN (with line breaks)
+The most dominant frequency is 3.461538 which is about April 15th. Carnival that year was from April 19-21st. The other most dominant frequency was in early January, most likely due to everyone coming back to school and checking out textbooks and the like.
 ```
 
 ## Question 11
@@ -269,7 +278,20 @@ FILL ME IN (with line breaks)
 
 Create a function that takes in a date (as a character string), converts it to `Date` format, and returns how many loans were made on that date. A few notes: (1) you will also need to pass in your vector of dates-and-times from Q3, as cast to `Date`, because you are going to determine how many times your test date appears in that vector of dates; (2) you will also have the date format as an argument, with a default value of "%Y-%m-%d", because your function should allow the user to express the date in different formats; and (3) you will utilize `tryCatch()` with an `error` argument (where the error message should be "ERROR: bad date format."), so that if the input date cannot be converted to `Date` format and thus gets converted to `NA`, your code can clean things up without the code chunk itself failing. Note that inside `tryCatch()`, you should check if the converted date is `NA` and if it is, then you should issue a `stop()` function call (which will then trigger your error message to be displayed.) Note that for April 18, 2019, I find that 73 items were loaned. (Test your function with "4/18/2019" to see if you get this total.) Important: do not test your function with, or correct for, input that includes a two-digit year. This keeps things simpler. In a real-world code, you'd need to do that, but you need not do that here.
 ```{r linewidth=80}
-# FILL ME IN
+
+date_to_num_loans = function(date, vect_date_times, d.format = "%Y-%m-%d") {
+  as.date = as.Date(date, format= d.format)
+  tryCatch(
+    { if (is.na(as.date)) stop() },
+    error = function(c) { message("ERROR: bad date format") }
+    )
+  num = vect_date_times[vect_date_times == as.date]
+  return (length(num))
+}
+
+# date_to_num_loans("4/18/2019", loaned.day)
+date_to_num_loans("4/18/2019", loaned.day, d.format = "%m/%d/%Y")
+### *** What does it want me do do to "clean things up"????
 ```
 
 ## Question 12
