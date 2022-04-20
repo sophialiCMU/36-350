@@ -21,7 +21,13 @@ Q5
 - notes for alter table and update functions
 - Tip: draw out tables on paper and relations
 
+Q6
+- update to set values to inches
+- code splits from feet-inches to two separate things 
+- add new column and update column to add new values
+- drop old column
 
+code: w13
 
 
 

@@ -31,11 +31,34 @@ Download `player-stats.sql` and read it into your `postgres` session using the `
 \?
 \! cd
     # C:\Program Files\PostgreSQL\14\scripts
-\ir .. Users\sop12\Downloads\player-stats.sql
-\i C:\Users\sop12\Downloads\player-stats.sql
+\cd /Users/sop12/Downloads
+\i player-stats.sql
 
+postgres=# \cd /Users/sop12/Downloads
+postgres=# \! cd
+C:\Users\sop12\Downloads
+postgres=# \i player-stats.sql
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+COPY 476
+COPY 476
+COPY 476
 
-
+postgres=# \d
+                    List of relations
+ Schema |           Name           |   Type   |  Owner
+--------+--------------------------+----------+----------
+ public | galaxies                 | table    | postgres
+ public | more_player_stats        | table    | postgres
+ public | more_player_stats_id_seq | sequence | postgres
+ public | player_bios              | table    | postgres
+ public | player_bios_id_seq       | sequence | postgres
+ public | player_stats             | table    | postgres
+ public | player_stats_id_seq      | sequence | postgres
+ public | rdata                    | table    | postgres
+ public | rdata_id_seq             | sequence | postgres
+(9 rows)
 ```
 
 ## Question 2
