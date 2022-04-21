@@ -44,21 +44,17 @@ CREATE TABLE
 COPY 476
 COPY 476
 COPY 476
-
 postgres=# \d
                     List of relations
  Schema |           Name           |   Type   |  Owner
 --------+--------------------------+----------+----------
- public | galaxies                 | table    | postgres
  public | more_player_stats        | table    | postgres
  public | more_player_stats_id_seq | sequence | postgres
  public | player_bios              | table    | postgres
  public | player_bios_id_seq       | sequence | postgres
  public | player_stats             | table    | postgres
  public | player_stats_id_seq      | sequence | postgres
- public | rdata                    | table    | postgres
- public | rdata_id_seq             | sequence | postgres
-(9 rows)
+(6 rows)
 ```
 
 ## Question 2
@@ -66,7 +62,14 @@ postgres=# \d
 
 Use an aggregate function to determine how many unique colleges there are among the 476 players in the database. (You might want to look up the documentation for `distinct`, which is `SQL`'s analogue to `R`'s `unique()`.)
 ```
-FILL ME IN
+select count (distinct college)as "count" from player_bios;
+
+postgres=# select count (distinct college)as "count" from player_bios;
+ count
+-------
+   125
+(1 row)
+
 ```
 
 ## Question 3
@@ -74,7 +77,30 @@ FILL ME IN
 
 Create a table called `teams`, which will have five columns: an `id` column of type `char(3)` that will be the table's primary key; `location` and `name` columns of type `text` (e.g., Boston for location, Celtics for name); a column showing the `division` in which the team plays (e.g., Atlantic); and a column showing the `conference` the team plays in (e.g., Eastern). Note that `division` and `conference` should be of type `DivisionType` and `ConferenceType` respectively; these types should be created as enumerated variables. (See the `postgres` documentation for `CREATE TYPE` and look specifically for the variant that contains the word `ENUM`; essentially, you are defining your own factor variables, with defined levels.)
 ```
-FILL ME IN
+CREATE TYPE DivisionType AS ENUM ( 'Atlantic', 'Central', 'Southeast', 'Northwest', 'Pacific', 'Southwest');
+CREATE TYPE ConferenceType AS ENUM ('Eastern', 'Western');
+
+create table teams (
+  id char(3),
+  location text,
+  name text,
+  division DivisionType,
+  coference ConferenceType
+);
+
+
+postgres=# CREATE TYPE DivisionType AS ENUM ( 'Atlantic', 'Central', 'Southeast', 'Northwest', 'Pacific', 'Southwest');
+CREATE TYPE
+postgres=# CREATE TYPE ConferenceType AS ENUM ('Eastern', 'Western');
+CREATE TYPE
+postgres=# create table teams (
+postgres(#   id char(3),
+postgres(#   location text,
+postgres(#   name text,
+postgres(#   division DivisionType,
+postgres(#   coference ConferenceType
+postgres(# );
+CREATE TABLE
 ```
 
 ---
@@ -127,7 +153,53 @@ where ranges of `prl` map directly to positions (see below). Create a new table 
 
 (Here I decided to round off the quotient. You should do the same with `prl`.) The last thing to do is to `update` your new table by setting the position on the basis of the following criteria: `'PF'` where `prl` is greater than or equal to 11.3; `'PG'` where `prl` is [10.8,11.3); `'C'` for [10.6,10.8); and `'SG/SF'` for [0,10.6). Display the first 10 rows of your new table.
 ```
-FILL ME IN
+create table new_table (
+  player integer references more_player_stats,
+  prl numeric,
+  position text
+);
+insert into new_table (player, prl) 
+  (select id, round(per - 67*va/(gp*minutes),1) 
+  from more_player_stats);
+update new_table set position = 'PF' where prl >= 11.3;
+update new_table set position = 'PG' where prl >= 10.8 and prl < 11.3;
+update new_table set position = 'C' where prl >= 10.6 and prl < 10.8;
+update new_table set position = 'SG/SF' where prl >= 0 and prl < 10.6;
+select * from new_table limit 10;
+
+
+postgres=# create table new_table (
+postgres(#   player integer references more_player_stats,
+postgres(#   prl numeric,
+postgres(#   position text
+postgres(# );
+CREATE TABLE
+postgres=# insert into new_table (player, prl)
+postgres-#   (select id, round(per - 67*va/(gp*minutes),1)
+postgres(#   from more_player_stats);
+INSERT 0 476
+postgres=# update new_table set position = 'PF' where prl >= 11.3;
+UPDATE 110
+postgres=# update new_table set position = 'PG' where prl >= 10.8 and prl < 11.3;
+UPDATE 92
+postgres=# update new_table set position = 'C' where prl >= 10.6 and prl < 10.8;
+UPDATE 80
+postgres=# update new_table set position = 'SG/SF' where prl >= 0 and prl < 10.6;
+UPDATE 193
+postgres=# select * from new_table limit 10;
+ player | prl  | position
+--------+------+----------
+      1 | 11.0 | PG
+     21 | 11.0 | PG
+     25 | 10.9 | PG
+     36 | 11.0 | PG
+     37 | 11.0 | PG
+     51 | 11.0 | PG
+     52 | 11.0 | PG
+     54 | 11.0 | PG
+     55 | 11.0 | PG
+     58 | 11.0 | PG
+(10 rows)
 ```
 
 ## Question 5
