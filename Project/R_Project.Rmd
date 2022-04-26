@@ -361,13 +361,29 @@ top.three.val = tapply(temp.df$Classification, INDEX=codes, FUN= function(x){sor
 m = matrix(unlist(top.three), ncol=3, by=1)
 rownames(m) = unique(codes)
 m
-
+cat("\n--- number of times ---\n")
 m.val = matrix(unlist(top.three.val), ncol=3, by=1)
 rownames(m.val) = unique(codes)
 m.val
+
+m[m=="H"] = "SS"
+m[m=="M"] = "Music"
+m[m=="N"] = "Fine Arts"
+m[m=="P"] = "Lang. and Lit."
+m[m=="Q"] = "Science"
+m[m=="R"] = "Medicine"
+m[m=="T"] = "Tech."
+m
 ```
 ```
-FILL ME IN (with line breaks)
+Library of Congress:
+H -- Social Sciences
+M -- Music and Books on Music
+N -- Fine Arts
+P -- Language and Literature
+Q -- Science
+R -- Medicine
+T -- Technology
 ```
 
 ## Question 14
