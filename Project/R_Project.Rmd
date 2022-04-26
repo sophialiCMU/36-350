@@ -22,6 +22,7 @@ Andrew ID: sophiali
 
 
 
+
 ```{r wrap-hook,echo=FALSE}
 library(knitr)
 library(tidyverse)
@@ -248,9 +249,9 @@ weekdays = weekdays(only.2018) %>% as.factor %>% as.data.frame()
 weekdays.split = split(weekdays, f=weekdays)
 
 sapply(weekdays.split, FUN=function(x){
-  if (x[[1]] == "Monday") { nrow(x)/53}
+  if (x[1,1] == "Monday") { nrow(x)/53}
   else { nrow(x)/52} } )
-# sapply(weekdays.split, FUN=function(x){nrow(x)/52} )
+# sapply(weekdays.split, FUN=function(x){ nrow(x)/52} )
 ```
 
 ## Question 10
@@ -299,7 +300,29 @@ date_to_num_loans("4/18/2019", loaned.day, d.format = "%m/%d/%Y")
 
 Which library has older items? Hunt Library (library code `HUNT`) or Sorrells (library code `ENGR-SCI`)? And are the items in one library older in a statistically significant sense? You should only work with years in the `Begin Publication Date` field that are complete (four numerical digits, as opposed to 19??). Use a split-apply-combine function to display the mean publication date for items in each of the two indicated libraries (and those two only...note, use `droplevels()` similarly to the way you used it in Q8, to limit output to those two libraries). Also show the sample standard deviations. Then create two vectors$-$publication dates for Hunt, and publications dates for Sorrells$-$and perform a two-sample t-test. (Google how to do this if it is not obvious how to do so right away.) If the null hypothesis is that both samples are drawn from the same population of publication dates, do you reject the null, or fail to reject the null?
 ```{r linewidth=80}
-# FILL ME IN
+## Get library as factors
+Q12.file.edit = file.edit
+Q12.file.edit$Library.Code = as.factor(file.edit$Library.Code)
+lev = Q12.file.edit$Library.Code %>%
+  droplevels(., c("", "QATAR", "MELLON", "OFFSITE", "SEI"))
+
+## Create new data frame with library and year and filter for
+##  four numeric digits
+temp.df = data.frame(Library = lev, 
+                     Year = Q12.file.edit$Begin.Publication.Date)
+
+temp.df$Year = as.numeric(temp.df$Year)
+temp.df = filter(temp.df, !is.na(temp.df$Year)) %>%
+  filter(., !is.na(.$Library))
+idx = temp.df$Library
+
+## Get the mean
+mean.year = tapply(temp.df$Year, INDEX=idx, FUN=mean) %>%
+  data.frame()
+mean.year
+sdv.year = tapply(temp.df$Year, INDEX=idx, FUN=sd) %>%
+  data.frame()
+sdv.year
 ```
 ```
 FILL ME IN (with line breaks)
