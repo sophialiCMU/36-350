@@ -341,7 +341,30 @@ It's good there is a t test because, for me, seeing an average of 2001 vs 1999 w
 
 Which top-level Library of Congress classification codes appear the most at Hunt and Sorrells? By "top-level," I mean the first capital letter in each code, which maps to a particular subject area. For instance, if the first letter is "B", the item is a work of philosophy, psychology, or religion. Only include elements in the `LC Classification Top Line` column that *begin* with a capital letter and which are not listed as "Unknown". Output the top three first letters for each library (e.g., you might find that R, S, and T appear the most for a given library, in that order). Look up Library of Congress classification via Google and identify what each of the letters in your output stands for. (Note that I found that "N" appears 5009 times for items loaned from Hunt Library. Use this as a check of your output.) Hint: if Military Science appears a lot in your final answer, it means you didn't filter out the "Unknown"s. ("U" is the Military Science LoC classification code.)
 ```{r linewidth=80}
-# FILL ME IN
+# file.edit$LC.Classification.Top.Line
+Q13.file.edit = file.edit
+Q13.file.edit$Library.Code = as.factor(Q13.file.edit$Library.Code)
+
+## Get temp.df of library and classification without "Unknown" or NA
+temp.df = data.frame(Library = Q13.file.edit$Library,
+                     Classification = Q13.file.edit$LC.Classification.Top.Line) %>%
+  filter(., .$Classification != "Unknown") 
+
+## Get first letters
+let = apply(data.frame(temp.df$Classification), 1, FUN=substr, start=1, stop=1) 
+temp.df$Classification = let
+
+## Top 3
+codes = as.factor(temp.df$Library)
+top.three = tapply(temp.df$Classification, INDEX=codes, FUN= function(x){labels(sort(table(x), decreasing = TRUE)[1:3])})
+top.three.val = tapply(temp.df$Classification, INDEX=codes, FUN= function(x){sort(table(x), decreasing = TRUE)[1:3]})
+m = matrix(unlist(top.three), ncol=3, by=1)
+rownames(m) = unique(codes)
+m
+
+m.val = matrix(unlist(top.three.val), ncol=3, by=1)
+rownames(m.val) = unique(codes)
+m.val
 ```
 ```
 FILL ME IN (with line breaks)
