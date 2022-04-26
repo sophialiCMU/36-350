@@ -323,9 +323,17 @@ mean.year
 sdv.year = tapply(temp.df$Year, INDEX=idx, FUN=sd) %>%
   data.frame()
 sdv.year
+
+## Publication vectors
+hunt.vect = temp.df$Year[temp.df$Library == "HUNT"] %>% data.frame()
+sorr.vect = temp.df$Year[temp.df$Library == "ENGR-SCI"] %>% data.frame()
+test = t.test(hunt.vect, sorr.vect, alternative = "two.sided", var.equal = TRUE)
+test
+print(paste0("p-value of t test = ", test$p.value))
 ```
 ```
-FILL ME IN (with line breaks)
+The p-value of the t teat is ~3.7*10^-10. This means that we should reject the null hypothesis because a p-value less than 0.05 indicates there is less than a 5% probabilty the null is correct. So we reject that the two libaries pull from the same population and publiation dates. 
+It's good there is a t test because, for me, seeing an average of 2001 vs 1999 wasn't that significant. But I guess over a few thousand entries it might be.
 ```
 
 ## Question 13
