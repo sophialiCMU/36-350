@@ -391,11 +391,31 @@ T -- Technology
 
 What words appear most commonly in the titles of loaned items? To determine this, you should do the following: (1) limit yourself to items with a language code of "eng"; (2) only deal with lower-case letters (meaning, convert all letters to lower case); (3) replace all instances of "'s" (i.e., apostrophe s) and punctuation with empty strings (e.g., `gsub()`); and (4) concatenate all the words into a single vector (while removing any empty strings that make it into that vector). But seeing that "and" and "the" appear most often is boring. So use the `data_stopwords_smart$en` vector from the `stopwords` package to identify words which you should not include in your final table of the ten most common words. To be clear: if it is a stop word, it should not appear in your final table! (Hint: see `match()` or `%in%` to figure out how to identify which words are stop words and which are not.) (Note: I see that the word "theory" appeared in item titles 1667 times.)
 ```{r linewidth=80}
-if ( require(stopwords) == FALSE ) {
-  install.packages("stopwords",repos="https://cloud.r-project.org")
-  library(stopwords)
-}
-# FILL ME IN
+# if ( require(stopwords) == FALSE ) {
+#   install.packages("stopwords",repos="https://cloud.r-project.org")
+#   library(stopwords)
+# }
+# ## Make dataframe with lower case titles in english
+# Q14.file.edit = data.frame(Title = file.edit$Title,
+#                            Language = as.factor(file.edit$Language.Code))
+# eng = filter(Q14.file.edit, Q14.file.edit$Language == "eng") %>% data.frame()
+# eng$Title = tolower(eng$Title)
+# # eng$Title
+
+## Remove punctuation
+titles = eng$Title
+reg.expr = gregexpr("'[a-z]+ ", titles, useBytes=FALSE)
+regmatches(titles, reg.expr) = " "
+reg.expr = gregexpr("[[:punct:]]", titles, useBytes=FALSE)
+regmatches(titles, reg.expr) = ""
+titles = data.frame(Title = titles)
+# titles$Title
+common = paste(titles$Title, collapse=" ") %>%
+  strsplit(., split="( )+") %>%
+  data.frame(.) 
+notstopped = filter(common, !(common %in% data_stopwords_smart$en))
+sort(table(notstopped[[1]]), decreasing = TRUE)[1:10]
+# data_stopwords_smart$en
 ```
 
 ## Question 15
