@@ -424,7 +424,13 @@ sort(table(notstopped[[1]]), decreasing = TRUE)[1:10]
 
 Display how many records are either `NA` or empty strings in each column. Note that you should not have a combination of each, i.e., there should be no columns in your data frame that have *both* `NA`s and empty strings in them. This simplifies coding. Note that I find that there's no publication date for 2340 items.
 ```{r linewidth=80}
-# FILL ME IN
+num.na = apply(file.edit, MARGIN = 2, 
+               FUN = function(x){ na_if(x, "")}) %>% 
+  data.frame() %>%
+  apply(., MARGIN = 2, FUN = function(x){
+  sum(is.na(x))
+})
+num.na
 ```
 
 ## Question 16
