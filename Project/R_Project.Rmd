@@ -452,7 +452,7 @@ pub$Publisher = as.character(pub$Publisher)
 o = pub[order(pub$Publisher),]
 o
 ggplot(data=o, aes(x=Publisher, y=Freq)) +
-  geom_bar(stat="identity")
+  geom_bar(stat="identity", fill="cyan4")
 ```
 
 ## Question 17
