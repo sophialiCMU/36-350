@@ -90,10 +90,11 @@ Not all of the columns are useful. First, use `summary()` or a similar function 
 #  [7] "Title"                      "Begin.Publication.Date"    
 #  [9] "Publisher"                  "Language.Code"             
 # [11] "Subjects"                   "Library.Code"  
+# 13) not actually a duplicate
 file.edit = file
-file.edit[,c(1,13)] = NULL
-file.edit
-
+file.edit[,c(1)] = NULL
+# file.edit
+dim(file.edit)
 ```
 
 ## Question 3
@@ -231,7 +232,7 @@ pg =droplevels(pg, c("Items charged to the bindery",
                      "Scholars Students from Central Catholic",
                      "Special Program Users",
                      "U. of Pittsburgh users",
-                     "Users non-affiliated with Carnegie Mellon"))
+                     "Users non-affiliated with Carnegie Mellon", ""))
 
 ave.patron = tapply(temp.df$days.out, INDEX=pg, FUN=mean) %>% data.frame()
 ave.patron
@@ -245,13 +246,16 @@ How many items were loaned on average on each day of the week in 2018? In other 
 only.2018 = loaned.day[loaned.day >= as.Date("2018-01-01", origin="1970-01-01") &
              loaned.day <= as.Date("2018-12-31", origin="1970-01-01")]
 
-weekdays = weekdays(only.2018) %>% as.factor %>% as.data.frame()
+weekdays = weekdays(only.2018) %>%
+  factor(., levels = c("Monday","Tuesday","Wednesday",
+                                   "Thursday", "Friday","Saturday",
+                                   "Sunday"))%>% as.data.frame()
 weekdays.split = split(weekdays, f=weekdays)
 
-sapply(weekdays.split, FUN=function(x){
+days = sapply(weekdays.split, FUN=function(x){
   if (x[1,1] == "Monday") { nrow(x)/53}
   else { nrow(x)/52} } )
-# sapply(weekdays.split, FUN=function(x){ nrow(x)/52} )
+data.frame(days)
 ```
 
 ## Question 10
@@ -259,18 +263,23 @@ sapply(weekdays.split, FUN=function(x){
 
 Create a time series for the loans in 2018, and then plot both the time series and its periodogram. Note that you should cast your date-and-time vector that you created in Q9 to `Date`, then use `table()` to determine the number of loans per date. You will probably have to look back at HW 10 (Q2, in particular) to recall how to define a time series for daily data. Finally: after you create your periodogram, determine the two most dominant frequencies and interpret them below.
 ```{r linewidth=80}
-# spectrum(only.2018)
+# spectrum(only.2018) 
 start = as.numeric(format(as.Date("2018-01-01", origin="01-01-1970"), format="%j"))
 
 count.table = table(only.2018)
 sorted = names(count.table)
 dates.ts = ts(count.table, start = c(2019, start), frequency = 365)
 
-# plot(dates.ts, xlab="Time", ylab="Total Number of Objects Loaned")
+plot(dates.ts, xlab="Time", ylab="Total Number of Objects Loaned")
 periodogram = spectrum(dates.ts,log="no")
 max(periodogram$freq)/periodogram$freq[which.max(periodogram$spec)]
+sort = sort(periodogram$spec)
+which(periodogram$spec==sort[length(sort)])
+which(periodogram$spec==sort[length(sort)-1])
 ```
 ```
+The most dominant frequency is 52. THis means there are about 52 cycles per month.
+
 The most dominant frequency is 3.461538 which is about April 15th. Carnival that year was from April 19-21st. The other most dominant frequency was in early January, most likely due to everyone coming back to school and checking out textbooks and the like.
 ```
 
@@ -290,9 +299,7 @@ date_to_num_loans = function(date, vect_date_times, d.format = "%Y-%m-%d") {
   return (length(num))
 }
 
-# date_to_num_loans("4/18/2019", loaned.day)
 date_to_num_loans("4/18/2019", loaned.day, d.format = "%m/%d/%Y")
-### *** What does it want me do do to "clean things up"????
 ```
 
 ## Question 12
@@ -327,12 +334,12 @@ sdv.year
 ## Publication vectors
 hunt.vect = temp.df$Year[temp.df$Library == "HUNT"] %>% data.frame()
 sorr.vect = temp.df$Year[temp.df$Library == "ENGR-SCI"] %>% data.frame()
-test = t.test(hunt.vect, sorr.vect, alternative = "two.sided", var.equal = TRUE)
+test = t.test(hunt.vect, sorr.vect, alternative = "two.sided")
 test
 print(paste0("p-value of t test = ", test$p.value))
 ```
 ```
-The p-value of the t teat is ~3.7*10^-10. This means that we should reject the null hypothesis because a p-value less than 0.05 indicates there is less than a 5% probabilty the null is correct. So we reject that the two libaries pull from the same population and publiation dates. 
+The p-value of the t teat is ~3.7*10^-13. This means that we should reject the null hypothesis because a p-value less than 0.05 indicates there is less than a 5% probabilty the null is correct. So we reject that the two libaries pull from the same population and publiation dates. 
 It's good there is a t test because, for me, seeing an average of 2001 vs 1999 wasn't that significant. But I guess over a few thousand entries it might be.
 ```
 
@@ -345,45 +352,36 @@ Which top-level Library of Congress classification codes appear the most at Hunt
 Q13.file.edit = file.edit
 Q13.file.edit$Library.Code = as.factor(Q13.file.edit$Library.Code)
 
-## Get temp.df of library and classification without "Unknown" or NA
-temp.df = data.frame(Library = Q13.file.edit$Library,
-                     Classification = Q13.file.edit$LC.Classification.Top.Line) %>%
-  filter(., .$Classification != "Unknown") 
+# Get library as factors
+Q13.file.edit = file.edit
+Q13.file.edit$Library.Code = as.factor(file.edit$Library.Code)
+lev = Q13.file.edit$Library.Code %>%
+  droplevels(., c("", "QATAR", "MELLON", "OFFSITE", "SEI"))
 
 ## Get first letters
-let = apply(data.frame(temp.df$Classification), 1, FUN=substr, start=1, stop=1) 
-temp.df$Classification = let
+let = apply(data.frame(Q13.file.edit$LC.Classification.Top.Line), 1, FUN=substr, start=1, stop=1) 
+
+temp.df = data.frame(Library = lev,
+                     Classification = let) %>%
+  filter(., .$Classification != "Unknown") 
+# temp.df
 
 ## Top 3
 codes = as.factor(temp.df$Library)
-top.three = tapply(temp.df$Classification, INDEX=codes, FUN= function(x){labels(sort(table(x), decreasing = TRUE)[1:3])})
+top.three = tapply(temp.df$Classification, INDEX=codes, FUN= function(x){
+  labels(sort(table(x), decreasing = TRUE)[1:3])})
 top.three.val = tapply(temp.df$Classification, INDEX=codes, FUN= function(x){sort(table(x), decreasing = TRUE)[1:3]})
-m = matrix(unlist(top.three), ncol=3, by=1)
-rownames(m) = unique(codes)
-m
-cat("\n--- number of times ---\n")
-m.val = matrix(unlist(top.three.val), ncol=3, by=1)
-rownames(m.val) = unique(codes)
-m.val
-
-m[m=="H"] = "SS"
-m[m=="M"] = "Music"
-m[m=="N"] = "Fine Arts"
-m[m=="P"] = "Lang. and Lit."
-m[m=="Q"] = "Science"
-m[m=="R"] = "Medicine"
-m[m=="T"] = "Tech."
-m
+top.three.val
 ```
 ```
 Library of Congress:
-H -- Social Sciences
-M -- Music and Books on Music
-N -- Fine Arts
-P -- Language and Literature
 Q -- Science
-R -- Medicine
 T -- Technology
+U -- Military Science
+
+P -- Language and Literature
+U -- Military Science
+N -- Fine Arts
 ```
 
 ## Question 14
@@ -415,8 +413,8 @@ common = paste(titles$Title, collapse=" ") %>%
   strsplit(., split="( )+") %>%
   data.frame(.) 
 notstopped = filter(common, !(common[[1]] %in% data_stopwords_smart$en)) %>% data.frame()
-sort(table(notstopped[[1]]), decreasing = TRUE)[1:10]
-# data_stopwords_smart$en
+t = sort(table(notstopped[[1]]), decreasing = TRUE)[1:10]
+data.frame(t)
 ```
 
 ## Question 15
@@ -430,7 +428,7 @@ num.na = apply(file.edit, MARGIN = 2,
   apply(., MARGIN = 2, FUN = function(x){
   sum(is.na(x))
 })
-num.na
+data.frame(num.na)
 ```
 
 ## Question 16
@@ -452,7 +450,7 @@ pub$Publisher = as.character(pub$Publisher)
 o = pub[order(pub$Publisher),]
 o
 ggplot(data=o, aes(x=Publisher, y=Freq)) +
-  geom_bar(stat="identity", fill="cyan4")
+  geom_bar(stat="identity", fill="cyan4") 
 ```
 
 ## Question 17
@@ -467,18 +465,19 @@ Each item in the dataset is associated with some number of subjects. In the subj
 #   return(length(num[[1]]))
 #   }) %>% data.frame(Nums = .)
 # 
-# factored = data.frame(Num = as.factor(num$Nums)) %>%
-#   filter(., . != 1)
-# table(factored)[2:38]
-# plot(table(factored)[2:38], xlab = "Number of Subjects", 
-#      ylab="Occurances") # can use log="y" but it makes the graph bad
 
 ## use sapply
-v2 = sapply(data.frame(sub = file.edit$Subjects), FUN = function(x){
+num = sapply(file.edit$Subjects, FUN = function(x){
   num = strsplit(x, split=";")
   return(length(num[[1]]))
   })
-v2
+# data.frame(factored)
+factored = data.frame(Num = as.factor(num)) %>%
+  filter(., . != 0)
+removed = table(factored)[2:38] %>% data.frame()
+plot(table(factored)[2:38], xlab = "Number of Subjects",
+     ylab="Occurances", log="y") # can use log="y" but it makes the graph bad
+# ggplot(data=table(factored)[2:38], aes(x=, y=freq))
 ```
 
 ## Question 18
