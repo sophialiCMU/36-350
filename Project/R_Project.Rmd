@@ -22,6 +22,7 @@ Andrew ID: sophiali
 
 
 
+
 ```{r wrap-hook,echo=FALSE}
 library(knitr)
 library(tidyverse)
@@ -89,10 +90,11 @@ Not all of the columns are useful. First, use `summary()` or a similar function 
 #  [7] "Title"                      "Begin.Publication.Date"    
 #  [9] "Publisher"                  "Language.Code"             
 # [11] "Subjects"                   "Library.Code"  
+# 13) not actually a duplicate
 file.edit = file
-file.edit[,c(1,13)] = NULL
-file.edit
-
+file.edit[,c(1)] = NULL
+# file.edit
+dim(file.edit)
 ```
 
 ## Question 3
@@ -230,7 +232,7 @@ pg =droplevels(pg, c("Items charged to the bindery",
                      "Scholars Students from Central Catholic",
                      "Special Program Users",
                      "U. of Pittsburgh users",
-                     "Users non-affiliated with Carnegie Mellon"))
+                     "Users non-affiliated with Carnegie Mellon", ""))
 
 ave.patron = tapply(temp.df$days.out, INDEX=pg, FUN=mean) %>% data.frame()
 ave.patron
@@ -244,13 +246,16 @@ How many items were loaned on average on each day of the week in 2018? In other 
 only.2018 = loaned.day[loaned.day >= as.Date("2018-01-01", origin="1970-01-01") &
              loaned.day <= as.Date("2018-12-31", origin="1970-01-01")]
 
-weekdays = weekdays(only.2018) %>% as.factor %>% as.data.frame()
+weekdays = weekdays(only.2018) %>%
+  factor(., levels = c("Monday","Tuesday","Wednesday",
+                                   "Thursday", "Friday","Saturday",
+                                   "Sunday"))%>% as.data.frame()
 weekdays.split = split(weekdays, f=weekdays)
 
-sapply(weekdays.split, FUN=function(x){
-  if (x[[1]] == "Monday") { nrow(x)/53}
+days = sapply(weekdays.split, FUN=function(x){
+  if (x[1,1] == "Monday") { nrow(x)/53}
   else { nrow(x)/52} } )
-# sapply(weekdays.split, FUN=function(x){nrow(x)/52} )
+data.frame(days)
 ```
 
 ## Question 10
@@ -258,18 +263,23 @@ sapply(weekdays.split, FUN=function(x){
 
 Create a time series for the loans in 2018, and then plot both the time series and its periodogram. Note that you should cast your date-and-time vector that you created in Q9 to `Date`, then use `table()` to determine the number of loans per date. You will probably have to look back at HW 10 (Q2, in particular) to recall how to define a time series for daily data. Finally: after you create your periodogram, determine the two most dominant frequencies and interpret them below.
 ```{r linewidth=80}
-# spectrum(only.2018)
+# spectrum(only.2018) 
 start = as.numeric(format(as.Date("2018-01-01", origin="01-01-1970"), format="%j"))
 
 count.table = table(only.2018)
 sorted = names(count.table)
 dates.ts = ts(count.table, start = c(2019, start), frequency = 365)
 
-# plot(dates.ts, xlab="Time", ylab="Total Number of Objects Loaned")
+plot(dates.ts, xlab="Time", ylab="Total Number of Objects Loaned")
 periodogram = spectrum(dates.ts,log="no")
 max(periodogram$freq)/periodogram$freq[which.max(periodogram$spec)]
+sort = sort(periodogram$spec)
+which(periodogram$spec==sort[length(sort)])
+which(periodogram$spec==sort[length(sort)-1])
 ```
 ```
+The most dominant frequency is 52. THis means there are about 52 cycles per month.
+
 The most dominant frequency is 3.461538 which is about April 15th. Carnival that year was from April 19-21st. The other most dominant frequency was in early January, most likely due to everyone coming back to school and checking out textbooks and the like.
 ```
 
@@ -289,9 +299,7 @@ date_to_num_loans = function(date, vect_date_times, d.format = "%Y-%m-%d") {
   return (length(num))
 }
 
-# date_to_num_loans("4/18/2019", loaned.day)
 date_to_num_loans("4/18/2019", loaned.day, d.format = "%m/%d/%Y")
-### *** What does it want me do do to "clean things up"????
 ```
 
 ## Question 12
@@ -299,10 +307,40 @@ date_to_num_loans("4/18/2019", loaned.day, d.format = "%m/%d/%Y")
 
 Which library has older items? Hunt Library (library code `HUNT`) or Sorrells (library code `ENGR-SCI`)? And are the items in one library older in a statistically significant sense? You should only work with years in the `Begin Publication Date` field that are complete (four numerical digits, as opposed to 19??). Use a split-apply-combine function to display the mean publication date for items in each of the two indicated libraries (and those two only...note, use `droplevels()` similarly to the way you used it in Q8, to limit output to those two libraries). Also show the sample standard deviations. Then create two vectors$-$publication dates for Hunt, and publications dates for Sorrells$-$and perform a two-sample t-test. (Google how to do this if it is not obvious how to do so right away.) If the null hypothesis is that both samples are drawn from the same population of publication dates, do you reject the null, or fail to reject the null?
 ```{r linewidth=80}
-# FILL ME IN
+## Get library as factors
+Q12.file.edit = file.edit
+Q12.file.edit$Library.Code = as.factor(file.edit$Library.Code)
+lev = Q12.file.edit$Library.Code %>%
+  droplevels(., c("", "QATAR", "MELLON", "OFFSITE", "SEI"))
+
+## Create new data frame with library and year and filter for
+##  four numeric digits
+temp.df = data.frame(Library = lev, 
+                     Year = Q12.file.edit$Begin.Publication.Date)
+
+temp.df$Year = as.numeric(temp.df$Year)
+temp.df = filter(temp.df, !is.na(temp.df$Year)) %>%
+  filter(., !is.na(.$Library))
+idx = temp.df$Library
+
+## Get the mean
+mean.year = tapply(temp.df$Year, INDEX=idx, FUN=mean) %>%
+  data.frame()
+mean.year
+sdv.year = tapply(temp.df$Year, INDEX=idx, FUN=sd) %>%
+  data.frame()
+sdv.year
+
+## Publication vectors
+hunt.vect = temp.df$Year[temp.df$Library == "HUNT"] %>% data.frame()
+sorr.vect = temp.df$Year[temp.df$Library == "ENGR-SCI"] %>% data.frame()
+test = t.test(hunt.vect, sorr.vect, alternative = "two.sided")
+test
+print(paste0("p-value of t test = ", test$p.value))
 ```
 ```
-FILL ME IN (with line breaks)
+The p-value of the t teat is ~3.7*10^-13. This means that we should reject the null hypothesis because a p-value less than 0.05 indicates there is less than a 5% probabilty the null is correct. So we reject that the two libaries pull from the same population and publiation dates. 
+It's good there is a t test because, for me, seeing an average of 2001 vs 1999 wasn't that significant. But I guess over a few thousand entries it might be.
 ```
 
 ## Question 13
@@ -310,10 +348,40 @@ FILL ME IN (with line breaks)
 
 Which top-level Library of Congress classification codes appear the most at Hunt and Sorrells? By "top-level," I mean the first capital letter in each code, which maps to a particular subject area. For instance, if the first letter is "B", the item is a work of philosophy, psychology, or religion. Only include elements in the `LC Classification Top Line` column that *begin* with a capital letter and which are not listed as "Unknown". Output the top three first letters for each library (e.g., you might find that R, S, and T appear the most for a given library, in that order). Look up Library of Congress classification via Google and identify what each of the letters in your output stands for. (Note that I found that "N" appears 5009 times for items loaned from Hunt Library. Use this as a check of your output.) Hint: if Military Science appears a lot in your final answer, it means you didn't filter out the "Unknown"s. ("U" is the Military Science LoC classification code.)
 ```{r linewidth=80}
-# FILL ME IN
+# file.edit$LC.Classification.Top.Line
+Q13.file.edit = file.edit
+Q13.file.edit$Library.Code = as.factor(Q13.file.edit$Library.Code)
+
+# Get library as factors
+Q13.file.edit = file.edit
+Q13.file.edit$Library.Code = as.factor(file.edit$Library.Code)
+lev = Q13.file.edit$Library.Code %>%
+  droplevels(., c("", "QATAR", "MELLON", "OFFSITE", "SEI"))
+
+## Get first letters
+let = apply(data.frame(Q13.file.edit$LC.Classification.Top.Line), 1, FUN=substr, start=1, stop=1) 
+
+temp.df = data.frame(Library = lev,
+                     Classification = let) %>%
+  filter(., .$Classification != "Unknown") 
+# temp.df
+
+## Top 3
+codes = as.factor(temp.df$Library)
+top.three = tapply(temp.df$Classification, INDEX=codes, FUN= function(x){
+  labels(sort(table(x), decreasing = TRUE)[1:3])})
+top.three.val = tapply(temp.df$Classification, INDEX=codes, FUN= function(x){sort(table(x), decreasing = TRUE)[1:3]})
+top.three.val
 ```
 ```
-FILL ME IN (with line breaks)
+Library of Congress:
+Q -- Science
+T -- Technology
+U -- Military Science
+
+P -- Language and Literature
+U -- Military Science
+N -- Fine Arts
 ```
 
 ## Question 14
@@ -325,7 +393,28 @@ if ( require(stopwords) == FALSE ) {
   install.packages("stopwords",repos="https://cloud.r-project.org")
   library(stopwords)
 }
-# FILL ME IN
+## Make dataframe with lower case titles in english
+Q14.file.edit = data.frame(Title = file.edit$Title,
+                           Language = as.factor(file.edit$Language.Code))
+eng = filter(Q14.file.edit, Q14.file.edit$Language == "eng") %>% data.frame()
+eng$Title = tolower(eng$Title)
+# eng$Title
+
+## Remove punctuation
+titles = eng$Title
+reg.expr = gregexpr("'[a-z]+ ", titles, useBytes=FALSE)
+regmatches(titles, reg.expr) = " "
+reg.expr = gregexpr("[[:punct:]]", titles, useBytes=FALSE)
+regmatches(titles, reg.expr) = ""
+titles = data.frame(Title = titles)
+
+## Get the most common words
+common = paste(titles$Title, collapse=" ") %>%
+  strsplit(., split="( )+") %>%
+  data.frame(.) 
+notstopped = filter(common, !(common[[1]] %in% data_stopwords_smart$en)) %>% data.frame()
+t = sort(table(notstopped[[1]]), decreasing = TRUE)[1:10]
+data.frame(t)
 ```
 
 ## Question 15
@@ -333,7 +422,13 @@ if ( require(stopwords) == FALSE ) {
 
 Display how many records are either `NA` or empty strings in each column. Note that you should not have a combination of each, i.e., there should be no columns in your data frame that have *both* `NA`s and empty strings in them. This simplifies coding. Note that I find that there's no publication date for 2340 items.
 ```{r linewidth=80}
-# FILL ME IN
+num.na = apply(file.edit, MARGIN = 2, 
+               FUN = function(x){ na_if(x, "")}) %>% 
+  data.frame() %>%
+  apply(., MARGIN = 2, FUN = function(x){
+  sum(is.na(x))
+})
+data.frame(num.na)
 ```
 
 ## Question 16
@@ -341,7 +436,21 @@ Display how many records are either `NA` or empty strings in each column. Note t
 
 Display a bar chart via `ggplot()` that shows how many items were published by each of the top eight publishers of items in the dataset. Note that you should limit yourself to items with language code "eng", and you should eliminate any empty strings from the publisher vector before counting up how many items each publisher published. Your plot need not show the publishers in order of decreasing number of publications; by default it should show bars in publisher alphabetical order (with "Cambridge University Press" coming first). Pick a good color for your bars. Note: for reasons not entirely clear to me, you should pass the argument `stat="identity"` to `geom_bar()` in order for the plot to display correctly.
 ```{r linewidth=80}
-# FILL ME IN
+# data.frame(file.edit$Publisher)
+# The top most publisher is ""
+Q16.file.edit = data.frame(Publisher = file.edit$Publisher,
+                           Language = as.factor(file.edit$Language.Code)) %>%
+  filter(., .$Language == "eng") %>% data.frame()
+top.8 = sort(table(Q16.file.edit$Publisher), decreasing = TRUE)[2:9]
+
+## Plot
+pub = data.frame(top.8) 
+colnames(pub) = c("Publisher","Freq")
+pub$Publisher = as.character(pub$Publisher)
+o = pub[order(pub$Publisher),]
+o
+ggplot(data=o, aes(x=Publisher, y=Freq)) +
+  geom_bar(stat="identity", fill="cyan4") 
 ```
 
 ## Question 17
@@ -349,7 +458,26 @@ Display a bar chart via `ggplot()` that shows how many items were published by e
 
 Each item in the dataset is associated with some number of subjects. In the subject field, the subjects are separated by semi-colons (;). Utilize `strsplit()` and `sapply()` to determine the number of subjects associated with each item. Then plot the number of occurrences of each number of subjects. (For instance, 1098 items may have 4 subjects, while 780 have 5...plot with 4 and 5 along the x-axis, the 1098 and 780 along the y-axis.) Do not include the data point for no subjects. You should convert the y-axis to logarithmic scale; once you do so, you should see a roughly linear trend.
 ```{r linewidth=80}
-# FILL ME IN
+# file.edit$Subjects
+## !!! NEED TO USE SAPPLY !!!!
+# num = apply(data.frame(sub = file.edit$Subjects), 1, FUN = function(x){
+#   num = strsplit(x, split=";")
+#   return(length(num[[1]]))
+#   }) %>% data.frame(Nums = .)
+# 
+
+## use sapply
+num = sapply(file.edit$Subjects, FUN = function(x){
+  num = strsplit(x, split=";")
+  return(length(num[[1]]))
+  })
+# data.frame(factored)
+factored = data.frame(Num = as.factor(num)) %>%
+  filter(., . != 0)
+removed = table(factored)[2:38] %>% data.frame()
+plot(table(factored)[2:38], xlab = "Number of Subjects",
+     ylab="Occurances", log="y") # can use log="y" but it makes the graph bad
+# ggplot(data=table(factored)[2:38], aes(x=, y=freq))
 ```
 
 ## Question 18
@@ -357,7 +485,7 @@ Each item in the dataset is associated with some number of subjects. In the subj
 
 Construct a histogram showing the distribution of the numerical components of each library classification code record. For instance, if the library classification code is "AZ874.5", then you need to extract the 874.5 and save it to a vector; once all extractions are done, histogram the vector. You should begin by filtering the data so as to retain only those classification codes that begin with a capital letter, then use tools of pattern matching to extract the numbers. If, when you make the histogram, you get the warning message "NAs introduced by coercion," it means that the vector of numbers has `NA`s in it (because you tried to coerce an empty string to a number, etc.)...go back and introduce code that forcibly removes the `NA`s from the vector.
 ```{r linewidth=80}
-# FILL ME IN
+
 ```
 
 ## Question 19
@@ -365,7 +493,13 @@ Construct a histogram showing the distribution of the numerical components of ea
 
 How many complete cases are there in your dataset? A "complete case" is a row for which all the fields have data. An incomplete case is a row in which there is an `NA` or an empty string. (Don't worry about cases like the classification code being "Unknown": just check for `NA`s and empty strings.) I find 32,345 complete cases.
 ```{r linewidth=80}
-# FILL ME IN
+num.na = apply(file.edit, MARGIN = 2, 
+               FUN = function(x){ na_if(x, "")}) %>% 
+  data.frame() %>%
+  apply(., MARGIN = 1, FUN = function(x){
+  sum(is.na(x))
+})
+sum(num.na == 0)
 ```
 
 ## Question 20
@@ -375,5 +509,8 @@ Edit your file `dark_and_stormy.R` in your 36-350 `Git` repo so that it prints "
 ```{r linewidth=80}
 library(devtools)
 #source_url(...)
+source_url(paste0("https://raw.githubusercontent.com/sophialiCMU/36-350/main/",
+                  "Project/dark_and_stormy.R"))
+
 ```
 And with that, you're done.
