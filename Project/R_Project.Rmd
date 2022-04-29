@@ -486,5 +486,8 @@ Edit your file `dark_and_stormy.R` in your 36-350 `Git` repo so that it prints "
 ```{r linewidth=80}
 library(devtools)
 #source_url(...)
+source_url(paste0("https://raw.githubusercontent.com/sophialiCMU/",
+                  "36-350/main/Week%208/dark_and_stormy.R"))
+
 ```
 And with that, you're done.
