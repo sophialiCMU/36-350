@@ -439,11 +439,11 @@ num.na
 Display a bar chart via `ggplot()` that shows how many items were published by each of the top eight publishers of items in the dataset. Note that you should limit yourself to items with language code "eng", and you should eliminate any empty strings from the publisher vector before counting up how many items each publisher published. Your plot need not show the publishers in order of decreasing number of publications; by default it should show bars in publisher alphabetical order (with "Cambridge University Press" coming first). Pick a good color for your bars. Note: for reasons not entirely clear to me, you should pass the argument `stat="identity"` to `geom_bar()` in order for the plot to display correctly.
 ```{r linewidth=80}
 # data.frame(file.edit$Publisher)
-## The top most publisher is ""
-# Q16.file.edit = data.frame(Publisher = file.edit$Publisher,
-#                            Language = as.factor(file.edit$Language.Code)) %>%
-#   filter(., .$Language == "eng") %>% data.frame()
-# top.8 = sort(table(Q16.file.edit$Publisher), decreasing = TRUE)[2:9]
+# The top most publisher is ""
+Q16.file.edit = data.frame(Publisher = file.edit$Publisher,
+                           Language = as.factor(file.edit$Language.Code)) %>%
+  filter(., .$Language == "eng") %>% data.frame()
+top.8 = sort(table(Q16.file.edit$Publisher), decreasing = TRUE)[2:9]
 
 ## Plot
 pub = data.frame(top.8) 
@@ -460,7 +460,25 @@ ggplot(data=o, aes(x=Publisher, y=Freq)) +
 
 Each item in the dataset is associated with some number of subjects. In the subject field, the subjects are separated by semi-colons (;). Utilize `strsplit()` and `sapply()` to determine the number of subjects associated with each item. Then plot the number of occurrences of each number of subjects. (For instance, 1098 items may have 4 subjects, while 780 have 5...plot with 4 and 5 along the x-axis, the 1098 and 780 along the y-axis.) Do not include the data point for no subjects. You should convert the y-axis to logarithmic scale; once you do so, you should see a roughly linear trend.
 ```{r linewidth=80}
-# FILL ME IN
+# file.edit$Subjects
+## !!! NEED TO USE SAPPLY !!!!
+# num = apply(data.frame(sub = file.edit$Subjects), 1, FUN = function(x){
+#   num = strsplit(x, split=";")
+#   return(length(num[[1]]))
+#   }) %>% data.frame(Nums = .)
+# 
+# factored = data.frame(Num = as.factor(num$Nums)) %>%
+#   filter(., . != 1)
+# table(factored)[2:38]
+# plot(table(factored)[2:38], xlab = "Number of Subjects", 
+#      ylab="Occurances") # can use log="y" but it makes the graph bad
+
+## use sapply
+v2 = sapply(data.frame(sub = file.edit$Subjects), FUN = function(x){
+  num = strsplit(x, split=";")
+  return(length(num[[1]]))
+  })
+v2
 ```
 
 ## Question 18
@@ -468,7 +486,7 @@ Each item in the dataset is associated with some number of subjects. In the subj
 
 Construct a histogram showing the distribution of the numerical components of each library classification code record. For instance, if the library classification code is "AZ874.5", then you need to extract the 874.5 and save it to a vector; once all extractions are done, histogram the vector. You should begin by filtering the data so as to retain only those classification codes that begin with a capital letter, then use tools of pattern matching to extract the numbers. If, when you make the histogram, you get the warning message "NAs introduced by coercion," it means that the vector of numbers has `NA`s in it (because you tried to coerce an empty string to a number, etc.)...go back and introduce code that forcibly removes the `NA`s from the vector.
 ```{r linewidth=80}
-# FILL ME IN
+
 ```
 
 ## Question 19
@@ -476,7 +494,13 @@ Construct a histogram showing the distribution of the numerical components of ea
 
 How many complete cases are there in your dataset? A "complete case" is a row for which all the fields have data. An incomplete case is a row in which there is an `NA` or an empty string. (Don't worry about cases like the classification code being "Unknown": just check for `NA`s and empty strings.) I find 32,345 complete cases.
 ```{r linewidth=80}
-# FILL ME IN
+num.na = apply(file.edit, MARGIN = 2, 
+               FUN = function(x){ na_if(x, "")}) %>% 
+  data.frame() %>%
+  apply(., MARGIN = 1, FUN = function(x){
+  sum(is.na(x))
+})
+sum(num.na == 0)
 ```
 
 ## Question 20
@@ -486,8 +510,8 @@ Edit your file `dark_and_stormy.R` in your 36-350 `Git` repo so that it prints "
 ```{r linewidth=80}
 library(devtools)
 #source_url(...)
-source_url(paste0("https://raw.githubusercontent.com/sophialiCMU/",
-                  "36-350/main/Week%208/dark_and_stormy.R"))
+source_url(paste0("https://raw.githubusercontent.com/sophialiCMU/36-350/main/",
+                  "Project/dark_and_stormy.R"))
 
 ```
 And with that, you're done.
