@@ -438,7 +438,21 @@ num.na
 
 Display a bar chart via `ggplot()` that shows how many items were published by each of the top eight publishers of items in the dataset. Note that you should limit yourself to items with language code "eng", and you should eliminate any empty strings from the publisher vector before counting up how many items each publisher published. Your plot need not show the publishers in order of decreasing number of publications; by default it should show bars in publisher alphabetical order (with "Cambridge University Press" coming first). Pick a good color for your bars. Note: for reasons not entirely clear to me, you should pass the argument `stat="identity"` to `geom_bar()` in order for the plot to display correctly.
 ```{r linewidth=80}
-# FILL ME IN
+# data.frame(file.edit$Publisher)
+## The top most publisher is ""
+# Q16.file.edit = data.frame(Publisher = file.edit$Publisher,
+#                            Language = as.factor(file.edit$Language.Code)) %>%
+#   filter(., .$Language == "eng") %>% data.frame()
+# top.8 = sort(table(Q16.file.edit$Publisher), decreasing = TRUE)[2:9]
+
+## Plot
+pub = data.frame(top.8) 
+colnames(pub) = c("Publisher","Freq")
+pub$Publisher = as.character(pub$Publisher)
+o = pub[order(pub$Publisher),]
+o
+ggplot(data=o, aes(x=Publisher, y=Freq)) +
+  geom_bar(stat="identity")
 ```
 
 ## Question 17
