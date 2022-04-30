@@ -488,19 +488,18 @@ ggplot(removed, aes(x=Num.Subjects, y=Freq), x) +
 
 Construct a histogram showing the distribution of the numerical components of each library classification code record. For instance, if the library classification code is "AZ874.5", then you need to extract the 874.5 and save it to a vector; once all extractions are done, histogram the vector. You should begin by filtering the data so as to retain only those classification codes that begin with a capital letter, then use tools of pattern matching to extract the numbers. If, when you make the histogram, you get the warning message "NAs introduced by coercion," it means that the vector of numbers has `NA`s in it (because you tried to coerce an empty string to a number, etc.)...go back and introduce code that forcibly removes the `NA`s from the vector.
 ```{r linewidth=80}
-# file.edit$LC.Classification.Top.Line
-
-# let = apply(data.frame(file.edit$LC.Classification.Top.Line), 1, FUN=substr, start=1, stop=1)  
-# Q18.file.edit = data.frame(Classification = file.edit$LC.Classification.Top.Line,
-#                            First = let)
-first = grepl("[A-Z]", substring(file.edit$LC.Classification.Top.Line, 1,1))
-Q18.file.edit = data.frame(Classification = 
-                             file.edit$LC.Classification.Top.Line[first])
-# Q18.file.edit
-nums = apply(data.frame(Q18.file.edit$Classification), MARGIN=1, FUN=str_replace_all, pattern = "[A-Z]+", replacement="") %>% 
-  data.frame()
-nums
-# hist(nums)
+# first = grepl("[A-Z]", substring(file.edit$LC.Classification.Top.Line, 1,1))
+# Q18.file.edit = data.frame(Classification =
+#                              file.edit$LC.Classification.Top.Line[first])
+# # Q18.file.edit
+# nums = apply(data.frame(Q18.file.edit$Classification), MARGIN=1, FUN=str_replace_all, pattern = "[A-Z]+", replacement="") %>%
+#   data.frame()
+# 
+# test = as.numeric(nums$.)
+# test = na.omit(nums$.) %>% data.frame()
+# test
+# hist = hist(test$., xlim=c(0,1000), breaks = 100,
+#             xlab = "Numerical Comp. of Classification Codes", main=NULL, col="blue")
 ```
 
 ## Question 19
